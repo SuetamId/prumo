@@ -10,17 +10,21 @@ Só Markdown e um instalador. Sem runtime, sem binário, sem dependência.
 
 ## Instalar
 
-Clone uma vez, em qualquer lugar:
+**Passo 1** — clone o kit em `~/.prumo-kit`. Um clone serve todos os seus projetos, e
+rodar de novo só atualiza:
 
 ```bash
-git clone git@github.com:SuetamId/prumo.git ~/.prumo-kit
+git clone git@github.com:SuetamId/prumo.git ~/.prumo-kit 2>/dev/null || git -C ~/.prumo-kit pull
 ```
 
-Depois, **de dentro do projeto** em que você quer usar:
+**Passo 2** — entre na pasta do projeto que você quer e rode:
 
 ```bash
 bash ~/.prumo-kit/install.sh .
 ```
+
+> O caminho `~/.prumo-kit` é usado em todos os comandos deste README. Se você preferir
+> clonar em outro lugar, troque `~/.prumo-kit` pelo seu caminho em **todos** eles.
 
 Pronto. Reinicie o agente (Claude Code ou Cursor) para ele carregar as skills, e cole o
 seu pedido — a triagem escolhe a rota.
