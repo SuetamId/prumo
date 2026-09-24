@@ -34,16 +34,26 @@ ALVO="${1:-.}"
 # Mora aqui, e não num comando de shell no README, porque `<(...)` é bash/zsh e
 # quebra no fish — MEDIDO. Comando que só roda num shell não é comando, é pegadinha.
 if [ "$CONFERIR" = 1 ]; then
-  a="$(cd "$KIT" && find skills -name '*.md' 2>/dev/null | sort)"
-  b="$(cd "$ALVO" && find .agents/skills -name '*.md' 2>/dev/null | sed 's|^\.agents/||' | sort)"
+  # 🔴 Compara SÓ o que é do prumo. O manifesto é a fonte única de quem é nosso.
+  # MEDIDO: a versão anterior comparava tudo que havia em .agents/skills/, e num
+  # projeto com skills PRÓPRIAS (angular-developer, motion-design) reportava as 56
+  # skills do time como "sobra" → DESATUALIZADO, logo depois de uma instalação que
+  # provou 11/11. Convivência não é divergência: é a tese do produto.
+  nossas="$(awk -F'\t' '$1=="skill"{print $2}' "$KIT/manifest.tsv" 2>/dev/null)"
+  [ -n "$nossas" ] || { echo "erro: não consegui ler $KIT/manifest.tsv" >&2; exit 2; }
+  filtro="$(printf '%s\n' "$nossas" | sed 's|^|^skills/|;s|$|/|' | paste -sd'|' -)"
+  a="$(cd "$KIT" && find skills -name '*.md' 2>/dev/null | grep -E "$filtro" | sort)"
+  b="$(cd "$ALVO" && find .agents/skills -name '*.md' 2>/dev/null | sed 's|^\.agents/||' | grep -E "$filtro" | sort)"
   if [ -z "$b" ]; then
     printf '\033[33m!\033[0m prumo NÃO está instalado em %s\n' "$(cd "$ALVO" && pwd)"; exit 2
   fi
   falta="$(comm -23 <(printf '%s\n' "$a") <(printf '%s\n' "$b") 2>/dev/null)"
   sobra="$(comm -13 <(printf '%s\n' "$a") <(printf '%s\n' "$b") 2>/dev/null)"
   if [ -z "$falta" ] && [ -z "$sobra" ]; then
-    printf '\033[32m✓\033[0m EM DIA — %s artefato(s), iguais ao kit (%s)\n' \
+    outras="$(cd "$ALVO" && find .agents/skills -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sed 's|.*/||' | grep -vxF "$(printf '%s\n' "$nossas")" | wc -l | tr -d ' ')"
+    printf '\033[32m✓\033[0m EM DIA — %s artefato(s) do prumo, iguais ao kit (%s)\n' \
       "$(printf '%s\n' "$b" | wc -l | tr -d ' ')" "$(git -C "$KIT" rev-parse --short HEAD 2>/dev/null || echo '?')"
+    [ "${outras:-0}" -gt 0 ] && printf '      (+%s skill(s) própria(s) do projeto, que o prumo não gerencia)\n' "$outras"
     exit 0
   fi
   printf '\033[33m!\033[0m DESATUALIZADO\n'
