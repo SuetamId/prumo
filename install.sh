@@ -318,6 +318,23 @@ else
   avi "sem repositório git — tasks/ não pôde ser excluído automaticamente"
 fi
 
+# ── 3b · ATALHO `prumo-atualizar` ────────────────────────────────────────────
+# Fica em ~/.local/bin, que é o diretório de binário do usuário no padrão XDG e
+# já está no PATH na maioria dos sistemas. Se NÃO estiver, dizemos — atalho que
+# não responde é pior que atalho que não existe.
+if [ -f "$KIT/atualizar.sh" ]; then
+  BIN="$HOME/.local/bin"; mkdir -p "$BIN" 2>/dev/null
+  if ln -sfn "$KIT/atualizar.sh" "$BIN/prumo-atualizar" 2>/dev/null; then
+    case ":$PATH:" in
+      *":$BIN:"*) ok "atalho: prumo-atualizar (puxa o kit e reinstala)" ;;
+      *) avi "atalho criado em $BIN, que NÃO está no seu PATH"
+         printf '      acrescente ao seu shell:  export PATH="$HOME/.local/bin:$PATH"\n' ;;
+    esac
+  else
+    avi "não consegui criar o atalho em $BIN — use: bash $KIT/atualizar.sh"
+  fi
+fi
+
 # ── 4 · PROVA — relendo o disco ──────────────────────────────────────────────
 echo; echo "── 4 · Prova (relida do disco) ──"
 falhou=0

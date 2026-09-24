@@ -47,6 +47,18 @@ bash ~/.prumo-kit/install.sh /caminho/do/outro/projeto
 
 Puxe e reinstale — é idempotente, substitui só o bloco gerenciado e não toca no que é seu:
 
+De dentro do projeto:
+
+```bash
+prumo-atualizar
+```
+
+Ele puxa o kit e reinstala, nessa ordem. O atalho é criado pelo instalador em
+`~/.local/bin/`; se esse diretório não estiver no seu `PATH`, a instalação avisa e diz o
+que acrescentar ao shell.
+
+Equivalente, sem o atalho:
+
 ```bash
 git -C ~/.prumo-kit pull && bash ~/.prumo-kit/install.sh .
 ```
