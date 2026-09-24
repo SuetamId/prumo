@@ -20,6 +20,23 @@ ok(){ printf '  \033[32m✓\033[0m %s\n' "$1"; }
 inf(){ printf '  \033[34m·\033[0m %s\n' "$1"; }
 avi(){ printf '  \033[33m!\033[0m %s\n' "$1"; }
 
+# ── 0 · O KIT ESTÁ ATUALIZADO? ───────────────────────────────────────────────
+# MEDIDO: o kit ficou 2 commits atrás, o install rodou do snapshot velho e
+# reinstalou a versão antiga por cima da antiga — sem erro e sem aviso. "Atualizei"
+# e "nada mudou" ficaram indistinguíveis. Consulta remota é barata e só informa:
+# ela nunca bloqueia nem puxa nada sozinha, porque o kit é de quem instalou.
+if git -C "$KIT" rev-parse --git-dir >/dev/null 2>&1; then
+  if timeout 10 git -C "$KIT" fetch -q origin 2>/dev/null; then
+    atras=$(git -C "$KIT" rev-list --count HEAD..@{u} 2>/dev/null || echo 0)
+    if [ "${atras:-0}" -gt 0 ]; then
+      printf '  \033[33m!\033[0m kit %s commit(s) atrás do remoto — você vai instalar a versão ANTIGA\n' "$atras" >&2
+      printf '      atualize antes:  git -C %s pull\n\n' "$KIT" >&2
+    fi
+  else
+    printf '  \033[34m·\033[0m sem rede para conferir se o kit está atualizado\n' >&2
+  fi
+fi
+
 # ── 1 · ADOÇÃO — ler antes de escrever ───────────────────────────────────────
 echo; echo "── 1 · Adoção: lendo o projeto ──"
 
