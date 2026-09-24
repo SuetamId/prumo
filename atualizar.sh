@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 # atualizar.sh — puxa o kit e reinstala no projeto. Instalado como `prumo-atualizar`.
 #
-# 🔴 POR QUE ELE SE COPIA ANTES DE PUXAR. Este arquivo vive DENTRO do kit, e o
-# `git pull` abaixo reescreve o kit — incluindo este arquivo. Bash lê script
-# incrementalmente: sobrescrever o arquivo em execução corrompe o que ainda não foi
-# lido, e o modo de falha é um erro de sintaxe numa linha que você nunca escreveu.
-# Por isso ele se copia para um temporário e re-executa de lá ANTES de puxar.
+# POR QUE ELE SE COPIA ANTES DE PUXAR — e o que disso foi MEDIDO.
+#
+# Este arquivo vive DENTRO do kit, e o `git pull` abaixo reescreve o kit, inclusive
+# este arquivo. Medido em 2026-09-25: o `pull` escreve NO MESMO INODE, ou seja, por
+# cima do arquivo aberto — o mecanismo de corrupção existe.
+#
+# O que NÃO foi reproduzido: a corrupção em si. Rodando um script que se reescreve no
+# meio da própria execução, com deslocamento de offsets, ele chegou ao fim intacto a
+# 2 KB, 64 KB e 256 KB. Para este arquivo (~2 KB) o bash já leu tudo antes do `pull`.
+#
+# A guarda fica porque custa 5 linhas e o inode compartilhado é fato. Mas ela é
+# seguro, não conserto de bug observado — e quem vier depois não deve gastar tempo
+# defendendo uma falha que ninguém viu acontecer aqui.
 set -uo pipefail
 
 if [ "${PRUMO_REEXEC:-}" != "1" ]; then
