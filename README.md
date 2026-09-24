@@ -70,11 +70,21 @@ esse commit não tem como avisar: a versão que avisa é justamente a que falta.
 
 ### Conferir se a atualização pegou
 
-Roda no projeto, depois de atualizar. Compara o que está instalado com o que o kit tem:
+De dentro do projeto, sem escrever nada:
 
 ```bash
-diff <(cd ~/.prumo-kit && find skills -name '*.md' | sort) <(find .agents/skills -name '*.md' 2>/dev/null | sed 's|^.agents/||' | sort) >/dev/null && echo "EM DIA" || echo "DESATUALIZADO — rode: git -C ~/.prumo-kit pull && bash ~/.prumo-kit/install.sh ."
+prumo-atualizar --conferir
 ```
+
+```
+✓ EM DIA — 16 artefato(s), iguais ao kit (5b6c50b)
+```
+
+Quando não está, ele nomeia o que falta. Sai `0` em dia, `1` desatualizado, `2` quando o
+prumo não está instalado ali — então serve em CI também.
+
+> Isto é um script, e não um comando de shell, de propósito: `<(...)` é sintaxe de
+> bash/zsh e quebra no fish. Comando que só roda num shell não é comando, é pegadinha.
 
 ### O que ele cria no seu projeto
 
