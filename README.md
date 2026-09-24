@@ -51,6 +51,19 @@ Puxe e reinstale — é idempotente, substitui só o bloco gerenciado e não toc
 git -C ~/.prumo-kit pull && bash ~/.prumo-kit/install.sh .
 ```
 
+🔴 **O `pull` não é opcional.** Rodar só o `install.sh` reinstala a versão que você já
+tinha — sem erro e sem aviso, e "atualizei" fica indistinguível de "nada mudou". Desde
+`14ac46e` o instalador avisa quando o kit está atrás do remoto, mas um kit anterior a
+esse commit não tem como avisar: a versão que avisa é justamente a que falta.
+
+### Conferir se a atualização pegou
+
+Roda no projeto, depois de atualizar. Compara o que está instalado com o que o kit tem:
+
+```bash
+diff <(cd ~/.prumo-kit && find skills -name '*.md' | sort) <(find .agents/skills -name '*.md' 2>/dev/null | sed 's|^.agents/||' | sort) >/dev/null && echo "EM DIA" || echo "DESATUALIZADO — rode: git -C ~/.prumo-kit pull && bash ~/.prumo-kit/install.sh ."
+```
+
 ### O que ele cria no seu projeto
 
 | Caminho | Vai pro git? | O que é |
