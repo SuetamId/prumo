@@ -10,18 +10,82 @@ Só Markdown e um instalador. Sem runtime, sem binário, sem dependência.
 
 ## Instalar
 
-```bash
-git clone https://github.com/<voce>/prumo.git
-bash prumo/install.sh /caminho/do/seu/projeto
-```
-
-Antes, para ver o que ele faria sem escrever um byte:
+Clone uma vez, em qualquer lugar:
 
 ```bash
-bash prumo/install.sh --dry-run /caminho/do/seu/projeto
+git clone git@github.com:SuetamId/prumo.git ~/.prumo-kit
 ```
 
-Depois, abra o agente no projeto e cole o pedido. A triagem escolhe a rota.
+Depois, **de dentro do projeto** em que você quer usar:
+
+```bash
+bash ~/.prumo-kit/install.sh .
+```
+
+Pronto. Reinicie o agente (Claude Code ou Cursor) para ele carregar as skills, e cole o
+seu pedido — a triagem escolhe a rota.
+
+### Ver antes de escrever
+
+Mede o projeto e mostra tudo que faria, sem tocar em um byte:
+
+```bash
+bash ~/.prumo-kit/install.sh --dry-run .
+```
+
+### Instalar em outro projeto sem sair daqui
+
+```bash
+bash ~/.prumo-kit/install.sh /caminho/do/outro/projeto
+```
+
+### Atualizar
+
+Puxe e reinstale — é idempotente, substitui só o bloco gerenciado e não toca no que é seu:
+
+```bash
+git -C ~/.prumo-kit pull && bash ~/.prumo-kit/install.sh .
+```
+
+### O que ele cria no seu projeto
+
+| Caminho | Vai pro git? | O que é |
+|---|---|---|
+| `.agents/skills/` | sim | as skills, fonte canônica |
+| `.claude/skills/` | sim | symlinks para a fonte canônica |
+| `.cursor/rules/*.mdc` | sim | as mesmas skills, no formato do Cursor |
+| bloco em `AGENTS.md` ou `CLAUDE.md` | sim | ponteiro, entre marcadores |
+| `docs/ai-harness/memoria/` | sim | os episódios que o harness aprender |
+| `scripts/` | sim | mapeador de contexto, detector, gerador de índice |
+| `perfil.tsv` · `produto.md` | **não** | fatos medidos do projeto |
+| `tasks/` | **não** | plano e tasks em andamento |
+| `.prumo/` | **não** | contexto derivado e templates |
+
+O que não vai pro git entra em `.git/info/exclude` — local, sem diff, sem sujar a árvore
+de ninguém.
+
+### Desinstalar
+
+Remove as skills e tudo que é local:
+
+```bash
+rm -rf .prumo tasks perfil.tsv produto.md .agents/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .claude/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .cursor/rules/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}.mdc
+```
+
+E tira o bloco do seu índice:
+
+```bash
+python3 -c "import re,sys,io; f=[x for x in ('AGENTS.md','CLAUDE.md') if __import__('os').path.isfile(x)][0]; t=open(f).read(); open(f,'w').write(re.sub(r'\n*<!-- prumo:start -->.*?<!-- prumo:end -->\n*','\n',t,flags=re.S)); print('bloco removido de',f)"
+```
+
+**Duas coisas ficam de propósito, e elas são suas:**
+
+- `docs/ai-harness/memoria/` — os episódios que o harness aprendeu com o seu projeto.
+  Apagar isso seria destruir conhecimento que você escreveu, não desinstalar ferramenta.
+- `scripts/` — o mapeador de contexto, o detector e o gerador de índice. São scripts
+  autônomos, sem dependência do resto: continuam funcionando sozinhos se você quiser.
+
+Apague os dois à mão se realmente quiser zerar.
 
 ## Ele se adapta ao seu projeto, não o contrário
 
