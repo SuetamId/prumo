@@ -1,54 +1,110 @@
 ---
 name: aprender
-description: Use ao fim de uma tarefa quando o usuário te corrigir, um comando documentado falhar, você gastar tempo demais descobrindo algo sem doc, ou a sessão revelar algo que a próxima deveria já saber.
+description: Use ao fim de uma tarefa quando o usuário te corrigir, um comando documentado falhar, uma suposição sua for desmentida, ou a sessão revelar algo que a próxima deveria já saber.
 when_to_use: >-
   "registra isso", "não erra mais isso", usuário corrigiu uma suposição sua,
   comando da doc não funcionou, achado que custou caro e vai se repetir.
 ---
 
-# Aprender
+# Aprender — instintos, não relatos
 
-O harness fica mais inteligente porque alguém escreve o que a sessão ensinou. Sem isto,
-cada sessão recomeça do zero e o mesmo erro custa de novo.
+O harness fica mais inteligente porque alguém registra o que a sessão ensinou. O registro é
+**estruturado e mecânico**: um instinto por arquivo, campos fixos, evidência datada.
+
+🔴 **Nada de prosa.** Narrativa não é selecionável, não é ranqueável e não é verificável.
+Se não couber nos campos abaixo, não é instinto — tem outro dono.
 
 ## Admissão — um dos dois tem de valer
 
-1. **Carrega o "porquê" que a regra determinística descarta de propósito.** A regra diz
-   *nunca faça X*; o episódio diz *em tal data alguém fez X por um bom motivo e o
-   resultado foi este*. A regra guia a ação; o episódio impede que a ação errada volte
-   pela mão de quem acha que agora é diferente.
+1. **Contradiz o que um modelo assumiria por padrão.** Se o comportamento correto é o
+   óbvio, o instinto não paga o próprio custo.
 2. **É correção de rota do agente** — o que ele fez errado, não o que o sistema é.
 
-Nenhum dos dois? Tem outro dono: contrato vai para a doc do projeto, decisão vai para
-ADR, número com validade vai para `perfil.tsv`. **Episódio não é wiki paralela.**
-
-## O que NÃO entra
-
-- Narrativa de sessão rotineira. "Implementei X e funcionou" não ensina nada.
-- Fato que o repositório já diz. Se `git log` conta, não duplique.
-- 🔴 **Identidade.** Sem nome de pessoa, caminho de home, e-mail, usuário nominal ou IP
-  privado. Identidade vira **papel**; valor de máquina vira **nome de variável**. Isto
-  não é higiene: é o que permite o episódio circular entre projetos e entre times.
+Nenhum dos dois? Contrato vai para a doc do projeto, decisão vai para o registro durável,
+valor com validade vai para `perfil.tsv`.
 
 ## A forma
 
-Um arquivo por episódio em `docs/ai-harness/memoria/`, nome em kebab-case que é a
-**lição**, não o assunto — `cache-invalida-antes-do-commit.md`, nunca `notas-cache.md`.
+Um arquivo por instinto em `docs/ai-harness/memoria/<id>.md`. Template em
+`.prumo/templates/instinto.md`.
 
-```markdown
+```yaml
 ---
-name: <slug>
-description: "uma frase: o que aconteceu e o que custou"
-dono_canonico: <caminho da regra que é fonte de verdade do fato, ou "-">
-verificado_em: AAAA-MM-DD
-ttl: nunca            # ou nº de dias, quando o texto afirma estado ATUAL
+id: cache-invalida-antes-do-commit
+gatilho: "ao alterar entidade persistida em <módulo>"
+acao: "invalidar o cache antes de commitar a transação, nunca depois"
+confianca: 0.7
+dominio: dados
+escopo: projeto
+origem: correcao-do-usuario
+visto_em: 3
+projetos: 1
+verificado_em: 2026-09-24
 ---
 
-O que eu acreditava · o que medi · o que custou · o que fazer da próxima vez.
+## Evidência
+
+- 2026-09-20 · leitura suja em produção após commit; cache invalidado depois
+- 2026-09-22 · usuário corrigiu a ordem em review
+- 2026-09-24 · reproduzido com teste; ordem invertida falha
 ```
 
-`ttl: nunca` para episódio histórico. Número de dias quando o texto afirma estado atual —
-e aí fato vencido é **pendência de reverificação**, nunca licença para usar o valor velho.
+## Os campos, e o que cada um decide
+
+| Campo | Valores | Para que serve |
+|---|---|---|
+| `id` | kebab-case, é a **lição** | nome de assunto (`notas-cache`) não ensina nada |
+| `gatilho` | `"quando/ao <condição observável>"` | é o que o seleciona. Condição que ninguém observa nunca dispara |
+| `acao` | **uma linha**, imperativa | duas ações = dois instintos |
+| `confianca` | `0.3`–`0.95` | ver a escada abaixo |
+| `dominio` | `git · teste · ui · build · dados · fluxo · seguranca · ferramenta` | agrupa e ranqueia |
+| `escopo` | `projeto` (padrão) · `global` | 🔴 global só por promoção medida |
+| `origem` | `correcao-do-usuario · comando-falhou · medicao · curadoria` | correção do usuário vale mais que suposição |
+| `visto_em` | inteiro | quantas observações sustentam |
+| `projetos` | inteiro | quantos projetos distintos. É o que autoriza promover |
+| `verificado_em` | `AAAA-MM-DD` | data da última confirmação |
+
+## A escada de confiança — mecânica, não opinião
+
+| Evento | Efeito |
+|---|---|
+| Nasce de observação única | `0.5` |
+| Nasce de **correção explícita** do usuário | `0.7` |
+| Nasce de medição reproduzida | `0.8` |
+| Cada confirmação nova | `+0.1`, `visto_em +1` |
+| Contrariado uma vez | `-0.2` |
+| Chegou a `< 0.3` | arquiva: move para `memoria/arquivados/` |
+
+🔴 **Teto de `0.95`. Nunca `1.0`** — instinto com certeza absoluta vira regra e sai daqui
+para a reference que é dona do assunto. Memória que vira lei sem passar por revisão é como
+se propaga erro confiante.
+
+## Escopo: projeto por padrão, global por evidência
+
+Nasce `escopo: projeto`. Vira `global` quando **`projetos >= 2`** — quando o mesmo instinto
+foi observado em dois repositórios distintos. Não é preferência: instinto de um projeto
+aplicado em outro é verdadeiro e inaplicável, que é o pior tipo de contexto.
+
+Promover é ato humano. O agente **propõe** e nomeia os dois projetos.
+
+## Seleção — o que entra na sessão
+
+Memória cresce para sempre; contexto não. A seleção é ranqueada e com teto:
+
+```bash
+bash scripts/selecionar-instintos.sh          # os que valem para esta sessão
+```
+
+Ordena por `confianca` mais os bônus, corta no piso e no teto. Detalhe e números em
+`rules/selecao.md`.
+
+## O que NÃO entra
+
+- Narrativa de sessão rotineira.
+- Fato que o repositório já diz — se `git log` conta, não duplique.
+- 🔴 **Identidade.** Sem nome de pessoa, caminho de home, e-mail, usuário ou IP privado.
+  Identidade vira **papel**; valor de máquina vira **nome de variável**. É o que permite o
+  instinto circular entre projetos e entre times.
 
 ## O índice é gerado
 
@@ -56,20 +112,11 @@ e aí fato vencido é **pendência de reverificação**, nunca licença para usa
 bash scripts/gerar-indice.sh docs/ai-harness/memoria/
 ```
 
-Escreveu episódio? Rode. Índice escrito à mão mente no dia em que alguém renomeia um
-arquivo — e índice que mente sobre o próprio diretório é pior que não ter índice.
+Escreveu instinto? Rode. Índice escrito à mão mente no dia em que alguém renomeia um
+arquivo.
 
-## Como o aprendizado circula
+## Procedência
 
-| Sentido | Como |
-|---|---|
-| kit → projeto | o instalador materializa a semente e **atualiza só o que você não editou** |
-| projeto → kit | o instalador **lista** o que é local; promover é decisão humana |
-
-O ledger `.sdd-origem.tsv` (`arquivo → sha → data`) é o que distingue os quatro casos:
-**pristino** atualiza · **editado** nunca é tocado · **local** é preservado e listado ·
-**novo** entra. Sem ele a única política segura seria nunca sobrescrever — e aí correção
-feita no kit jamais chegaria a quem já instalou.
-
-**Não edite o ledger.** É registro de entrega, não configuração: mexer nele faz a
-atualização confundir editado com pristino, e o modo de falha é perder o que você escreveu.
+O modelo de instinto — gatilho, confiança, domínio, evidência, escopo com promoção — é
+derivado do [ECC](https://github.com/affaan-m/ECC) (MIT), adaptado e reduzido. Lá ele é
+alimentado por observação automática via hooks; aqui o portão é humano de propósito.

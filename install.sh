@@ -217,7 +217,7 @@ ok "templates → .prumo/templates/"
 
 mkdir -p "$ALVO/tasks" "$ALVO/docs/ai-harness/memoria"
 mkdir -p "$ALVO/scripts"
-for s in gerar-indice.sh detectar-slop.sh mapear-codebase.sh; do
+for s in gerar-indice.sh detectar-slop.sh mapear-codebase.sh selecionar-instintos.sh; do
   [ -f "$KIT/scripts/$s" ] && { cp "$KIT/scripts/$s" "$ALVO/scripts/$s"; chmod +x "$ALVO/scripts/$s"; }
 done
 ok "memória → docs/ai-harness/memoria/ · scripts → scripts/"

@@ -26,6 +26,9 @@ reference	ui-plano/rules/qualidade-ui	ambos	nao	piso de acessibilidade, estados,
 reference	prova/rules/prova-de-tela	ambos	nao	roteiro de prova na interface real
 reference	ui-plano/rules/anti-slop	ambos	nao	marcas de UI gerada por modelo + detector determinístico; cede ao Impeccable quando ele existe
 reference	leveza/rules/ledger	ambos	nao	colhe os atalhos marcados para um registro de dívida
+reference	aprender/rules/selecao	ambos	nao	ranqueia instintos com piso e teto; memória cresce, contexto não
+reference	execucao/rules/estilo-do-projeto	ambos	nao	deriva de estilo: o modelo impondo os idiomas que treinou
+reference	prova/rules/falhas-silenciosas	ambos	nao	sete padrões de erro engolido que passam verde
 script	mapear-codebase	ambos	nao	deriva contexto do código quando não há documentação; saída local em .prumo/
 script	detectar-slop	ambos	nao	11 regras determinísticas de UI gerada por modelo
 template	plano	ambos	nao	esqueleto do plano executável

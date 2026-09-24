@@ -12,13 +12,16 @@ Você executa o plano. Você **não** redecide o plano.
 ## O laço, por wave
 
 1. Leia **só** a wave atual. Ler o plano inteiro a cada bloco convida a antecipar.
-2. Aplique `../leveza/SKILL.md` a cada bloco — inclusive ao código que o plano sugeriu.
+2. 🔴 **Projeto que você não escreveu?** `rules/estilo-do-projeto.md` antes do primeiro
+   bloco — o modelo escreve nos idiomas que treinou, e num projeto que decidiu diferente
+   isso transforma uma base em duas.
+3. Aplique `../leveza/SKILL.md` a cada bloco — inclusive ao código que o plano sugeriu.
    O plano autoriza o **quê**; a escada ainda manda no **como**.
-3. Escreva o mínimo que entrega a wave.
-4. **Rode a verificação da wave.** Cole a saída. Verificação que você não rodou não conta.
-5. Vermelho → conserte antes de seguir. Nunca acumule wave quebrada: a segunda falha
+4. Escreva o mínimo que entrega a wave.
+5. **Rode a verificação da wave.** Cole a saída. Verificação que você não rodou não conta.
+6. Vermelho → conserte antes de seguir. Nunca acumule wave quebrada: a segunda falha
    esconde a primeira.
-6. Marque a wave e siga.
+7. Marque a wave e siga.
 
 ## Quando o plano está errado
 

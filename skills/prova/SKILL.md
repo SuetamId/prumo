@@ -40,6 +40,12 @@ Obrigatório para classe **A** e **B** do `../ui-plano/SKILL.md`. Detalhe operac
    enquadramento diferente não é comparação.
 7. **Console limpo.** Erro novo no console é achado, mesmo com a tela parecendo certa.
 
+## Falha silenciosa — o que passa verde e está quebrado
+
+`rules/falhas-silenciosas.md`. Suíte verde é compatível com sistema quebrado: o erro
+engolido, o fallback que devolve vazio como se fosse resposta, o assíncrono que ninguém
+esperou. Sete padrões e três perguntas, sobre o diff.
+
 ## Regra de honestidade
 
 Três resultados, e o terceiro é o que quase todo harness perde:
