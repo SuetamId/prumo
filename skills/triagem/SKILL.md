@@ -19,7 +19,17 @@ cat perfil.tsv 2>/dev/null            # escrito pela adoção: build, teste, bra
 ls AGENTS.md CLAUDE.md docs/ tasks/ 2>/dev/null
 ```
 
-Sem `perfil.tsv`, o projeto nunca foi adotado → `rules/adocao.md` **antes** de seguir.
+Sem `perfil.tsv`, confira se é um **worktree** — ele só recebe o que é rastreado, e
+`perfil.tsv`/`.prumo/` são locais. O original mora no checkout principal:
+
+```bash
+cat "$(git rev-parse --path-format=absolute --git-common-dir)/../perfil.tsv"
+```
+
+Use esse caminho também para `.prumo/templates/` — 🔴 **só leitura**. Toda escrita
+(`tasks/`, memória, código) vai no worktree em que a sessão roda: o checkout principal
+não é a branch desta sessão, e outra sessão pode estar mexendo nele. Só se nem lá existir o projeto nunca
+foi adotado → `rules/adocao.md` **antes** de seguir.
 
 **Projeto sem documentação?** Leia `.prumo/contexto.md` — contexto derivado do próprio
 código: stack, como se roda, onde o código mora, o que a esteira exige, e as **lacunas**.

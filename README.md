@@ -103,6 +103,10 @@ prumo não está instalado ali — então serve em CI também.
 O que não vai pro git entra em `.git/info/exclude` — local, sem diff, sem sujar a árvore
 de ninguém.
 
+> **Worktrees** (o Claude Code desktop cria um por sessão) só recebem o que está
+> **commitado**. Commite as linhas "sim" acima, ou as skills não aparecem lá. Os itens
+> "não" ficam no checkout principal; a triagem sabe buscá-los ali.
+
 ### Desinstalar
 
 Remove as skills e tudo que é local:
