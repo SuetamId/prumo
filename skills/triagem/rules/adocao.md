@@ -38,7 +38,7 @@ build	npm run build	package.json:scripts.build
 teste	npm test	package.json:scripts.test
 lint	npm run lint	package.json:scripts.lint
 ui_dev	npm run dev	package.json:scripts.dev
-branch_base	main	git symbolic-ref
+branch_base	main	origin/HEAD
 commit_estilo	conventional	medido em 60 commits (54 casam)
 specs_em	docs/specs/	existe no disco
 design_system	@acme/ui	package.json:dependencies

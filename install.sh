@@ -119,8 +119,15 @@ done
 
 # git: convenção MEDIDA, nunca declarada
 if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
-  base="$(git -C "$ALVO" symbolic-ref --short HEAD 2>/dev/null)"
-  medir branch_base "$base" "git symbolic-ref"
+  # Base é para onde o trabalho integra, NUNCA a branch em que o install rodou.
+  # git-flow (develop/development no remoto) vence o default do remoto.
+  base=""; ori=""
+  for b in development develop; do
+    git -C "$ALVO" rev-parse -q --verify "refs/remotes/origin/$b" >/dev/null && { base=$b; ori="origin/$b existe (git-flow)"; break; }
+  done
+  [ -z "$base" ] && base="$(git -C "$ALVO" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)" \
+                 && base="${base#origin/}" && ori="origin/HEAD"
+  medir branch_base "$base" "$ori"
   n=$(git -C "$ALVO" log --format=%s -60 2>/dev/null | wc -l | tr -d ' ')
   if [ "${n:-0}" -ge 10 ]; then
     c=$(git -C "$ALVO" log --format=%s -60 2>/dev/null \
@@ -350,6 +357,13 @@ prova "diretório de memória"             "$ALVO/docs/ai-harness/memoria"
 prova "workspace ativo (local)"          "$ALVO/tasks"
 prova "contexto derivado do código"      "$ALVO/.prumo/contexto.md"
 grep -qF "$INI" "$IDX" && ok "bloco gerenciado presente" || { echo "  ✗ bloco ausente"; falhou=1; }
+
+# Worktree só recebe o que é RASTREADO. Skill não commitada existe aqui e some em
+# todo worktree — e o Claude Code desktop abre um worktree por sessão.
+if git -C "$ALVO" ls-files --others --exclude-standard -- .agents/skills .claude/skills .cursor/rules 2>/dev/null | grep -q .; then
+  avi "skills não commitadas: worktrees NÃO as veem"
+  printf '      commite .agents/skills .claude/skills .cursor/rules — ou rode o install.sh dentro de cada worktree\n'
+fi
 
 echo
 [ "$falhou" = 0 ] && { echo "prumo instalado em $ALVO"; echo; echo "  Abra o agente aqui e cole o pedido. A triagem escolhe a rota."; } \
