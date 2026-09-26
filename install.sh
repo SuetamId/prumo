@@ -360,9 +360,9 @@ grep -qF "$INI" "$IDX" && ok "bloco gerenciado presente" || { echo "  ✗ bloco 
 
 # Worktree só recebe o que é RASTREADO. Skill não commitada existe aqui e some em
 # todo worktree — e o Claude Code desktop abre um worktree por sessão.
-if git -C "$ALVO" ls-files --others --exclude-standard -- .agents/skills .claude/skills .cursor/rules 2>/dev/null | grep -q .; then
-  avi "skills não commitadas: worktrees NÃO as veem"
-  printf '      commite .agents/skills .claude/skills .cursor/rules — ou rode o install.sh dentro de cada worktree\n'
+if git -C "$ALVO" ls-files --others --exclude-standard -- .agents/skills .claude/skills .cursor/rules scripts 2>/dev/null | grep -q .; then
+  avi "skills/scripts não commitados: worktrees NÃO os veem"
+  printf '      commite .agents/skills .claude/skills .cursor/rules scripts — ou rode o install.sh dentro de cada worktree\n'
 fi
 
 echo

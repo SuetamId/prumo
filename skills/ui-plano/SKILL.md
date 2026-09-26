@@ -92,7 +92,7 @@ plano técnico e fora do git. Template em `.prumo/templates/ui-plano.md`, cinco 
 detector determinístico no fim:
 
 ```bash
-bash scripts/detectar-slop.sh <dir>     # 0 limpo · 2 achados · 1 não mediu
+bash scripts/detectar-slop.sh <dir>     # scripts/ da RAIZ do projeto · 0 limpo · 2 achados · 1 não mediu
 ```
 
 **Se o Impeccable estiver instalado, ele manda** — ele é dedicado a isto, roda sobre o DOM

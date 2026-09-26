@@ -34,7 +34,7 @@ foi adotado → `rules/adocao.md` **antes** de seguir.
 **Projeto sem documentação?** Leia `.prumo/contexto.md` — contexto derivado do próprio
 código: stack, como se roda, onde o código mora, o que a esteira exige, e as **lacunas**.
 Ele é **gerado** e envelhece: confira o `HEAD` no cabeçalho contra o atual e regenere
-quando divergir (`bash scripts/mapear-codebase.sh`). 🔴 Ele dá **estrutura, nunca decisão** —
+quando divergir (`bash scripts/mapear-codebase.sh`, na raiz do projeto). 🔴 Ele dá **estrutura, nunca decisão** —
 o código não diz o que foi rejeitado nem por quê. Isso só existe se alguém escreveu.
 
 ## 2. Classifique

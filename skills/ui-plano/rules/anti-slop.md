@@ -41,7 +41,7 @@ de UI. O erro não é usar Inter; é usar Inter porque ninguém decidiu nada.
 ## O detector
 
 ```bash
-bash scripts/detectar-slop.sh <dir>     # 0 limpo · 2 achados · 1 não mediu
+bash scripts/detectar-slop.sh <dir>     # scripts/ da RAIZ do projeto · 0 limpo · 2 achados · 1 não mediu
 ```
 
 **11 regras determinísticas**, sem modelo e sem rede — elas leem o código-fonte. Não veem
