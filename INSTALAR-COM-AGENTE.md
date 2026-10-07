@@ -175,6 +175,8 @@ onde o time integra e declare.
 
 ## 9. Hub de memória
 
+Sem Hub ("não tenho")? Pule este passo — a memória fica em cada repositório.
+
 1. A pessoa entra no Hub com o e-mail dela. E-mail do domínio da empresa entra direto; outro
    domínio clica em **Pedir acesso**. Um admin a coloca nos times (página **Pessoas**).
 2. Ela gera uma chave em **Chaves de API**.
@@ -218,7 +220,7 @@ duplicada confunde o agente. Não tem e a pessoa quer: `prumo-workspace … --ji
 
 ## Modelo de prompt
 
-Troque os quatro dados e cole no Claude Code, aberto em qualquer pasta:
+Troque os dados entre `< >` e cole no Claude Code, aberto em qualquer pasta:
 
 ```text
 Instale e configure o prumo na minha máquina. Você é responsável pelo resultado.
@@ -228,7 +230,7 @@ Instale e configure o prumo na minha máquina. Você é responsável pelo result
 3. Dados:
    - org no GitHub: <ORG>
    - produtos: <produto1>, <produto2>
-   - Hub de memória: <URL-DO-HUB>
+   - Hub de memória: <URL-DO-HUB, ou "não tenho">
    - pasta base: pergunte-me onde eu quero os projetos
 4. Não apague nada sem me perguntar e nunca me peça segredo no chat.
 5. Termine com o relatório do passo 11.
