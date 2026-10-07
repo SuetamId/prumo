@@ -149,6 +149,15 @@ if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
   fi
 fi
 
+# Irmãos: só dentro de um workspace marcado (prumo-workspace). Sem a marca, a pasta
+# de cima é só uma pasta — ~/Dev com 50 repos não são 50 irmãos.
+par="$(dirname "$ALVO")"
+if [ -f "$par/.prumo-workspace" ]; then
+  irm=""
+  for d in "$par"/*/; do d="${d%/}"; [ "$d" != "$ALVO" ] && [ -d "$d/.git" ] && irm="$irm ../${d##*/}"; done
+  medir repos_irmaos "${irm# }" "pastas do workspace $(basename "$par")"
+fi
+
 # WORKSPACE ATIVO: nosso padrão, sempre, em todo projeto. Não é negociável com a
 # convenção do projeto porque não compete com ela — ele é EFÊMERO e LOCAL, e o
 # registro durável (abaixo) continua sendo do projeto.
@@ -360,9 +369,10 @@ fi
 # não responde é pior que atalho que não existe.
 if [ -f "$KIT/atualizar.sh" ]; then
   BIN="$HOME/.local/bin"; mkdir -p "$BIN" 2>/dev/null
+  ln -sfn "$KIT/workspace.sh" "$BIN/prumo-workspace" 2>/dev/null
   if ln -sfn "$KIT/atualizar.sh" "$BIN/prumo-atualizar" 2>/dev/null; then
     case ":$PATH:" in
-      *":$BIN:"*) ok "atalho: prumo-atualizar (puxa o kit e reinstala)" ;;
+      *":$BIN:"*) ok "atalhos: prumo-atualizar (puxa o kit e reinstala) · prumo-workspace (monta a pasta de um produto)" ;;
       *) avi "atalho criado em $BIN, que NÃO está no seu PATH"
          printf '      acrescente ao seu shell:  export PATH="$HOME/.local/bin:$PATH"\n' ;;
     esac

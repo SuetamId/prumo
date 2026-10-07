@@ -3,8 +3,9 @@
 Lido por `plano` quando a mudança toca mais de um repositório — front e API separados,
 worker, site. Custo zero.
 
-Os repositórios irmãos vêm do `perfil.tsv` (`repos_irmaos`, declarado). Sem a linha,
-pergunte uma vez e grave como `declarado:` — ver `../../triagem/rules/adocao.md`.
+Os repositórios irmãos vêm do `perfil.tsv` (`repos_irmaos`) — medidos quando o projeto
+está num workspace do `prumo-workspace`. Sem a linha, pergunte uma vez e grave como
+`declarado:` — ver `../../triagem/rules/adocao.md`.
 
 ## O plano é um só
 
