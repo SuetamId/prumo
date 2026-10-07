@@ -25,6 +25,11 @@ só na hora de codar significa planejar o que não precisava existir.
 `../ui-plano/SKILL.md` **antes** de montar as waves. O plano de UI é entrada do plano
 técnico, não um anexo: superfície e estado mudam quantos arquivos a mudança toca.
 
+## Atravessa repositórios?
+
+Front e API separados, worker, site: `rules/multi-repo.md`. Um plano só, contrato antes
+de código, ordem de merge, e pronto vale pelo repositório mais atrasado.
+
 ## O plano
 
 Grava em **`tasks/prd-<slug>/plan.md`** — local, fora do git (`perfil.tsv:workspace_ativo`).

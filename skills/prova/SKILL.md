@@ -46,6 +46,12 @@ Obrigatório para classe **A** e **B** do `../ui-plano/SKILL.md`. Detalhe operac
 engolido, o fallback que devolve vazio como se fosse resposta, o assíncrono que ninguém
 esperou. Sete padrões e três perguntas, sobre o diff.
 
+## Revisão e PR
+
+Antes de abrir PR, em toda classe que não seja trivial: **revisão em outro contexto** —
+`rules/revisao.md`. Quem escreveu não aprova. Depois, a entrega por PR segue
+`rules/entrega-pr.md`: o que pode sem pedir, corpo que não executa, CI classificado.
+
 ## Regra de honestidade
 
 Três resultados, e o terceiro é o que quase todo harness perde:
@@ -65,3 +71,4 @@ aparecer, não desaparecer.
 - [ ] Nenhum `TODO`, `FIXME` ou `console.log` no código novo
 - [ ] Atalho deliberado marcado com `leveza:` e teto nomeado
 - [ ] O que ficou fora está dito, não omitido
+- [ ] Revisado em outro contexto, sem crítico aberto — ou NÃO MEDIU, dito

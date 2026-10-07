@@ -24,6 +24,11 @@ reference	triagem/rules/adocao	ambos	nao	lê o projeto existente e preenche só 
 reference	ui-plano/rules/mapear-padroes	ambos	nao	degrau 3: extrai o vocabulário visual do próprio produto
 reference	ui-plano/rules/qualidade-ui	ambos	nao	piso de acessibilidade, estados, hierarquia, ritmo
 reference	prova/rules/prova-de-tela	ambos	nao	roteiro de prova na interface real
+reference	prova/rules/revisao	ambos	nao	revisão em outro contexto; quem escreveu não aprova
+reference	prova/rules/entrega-pr	ambos	nao	PR: faixas de permissão, corpo que não executa, CI classificado
+reference	plano/rules/multi-repo	ambos	nao	um plano, contrato antes de código, ordem de merge entre repositórios
+reference	triagem/rules/hipoteses	ambos	nao	três hipóteses falsificáveis, derrubadas por dado
+reference	triagem/rules/incidente	ambos	nao	produção: só leitura, fato × hipótese, dois vereditos
 reference	ui-plano/rules/anti-slop	ambos	nao	marcas de UI gerada por modelo + detector determinístico; cede ao Impeccable quando ele existe
 reference	leveza/rules/ledger	ambos	nao	colhe os atalhos marcados para um registro de dívida
 reference	aprender/rules/selecao	ambos	nao	ranqueia instintos com piso e teto; memória cresce, contexto não

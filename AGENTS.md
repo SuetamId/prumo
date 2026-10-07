@@ -71,4 +71,4 @@ O ledger `.sdd-origem.tsv` distingue quatro casos — pristino, editado, local, 
 ## Orçamento
 
 Teto de **6.000 chars residentes** no projeto-alvo (`AGENTS.md` + descrições).
-Estourar é falha. Conhecimento mora em `rules/`, lido por caminho, custo zero.
+Estourar é falha — medido por `check.sh`, no CI. Conhecimento mora em `rules/`, lido por caminho, custo zero.

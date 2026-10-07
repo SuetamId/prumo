@@ -44,8 +44,11 @@ o código não diz o que foi rejeitado nem por quê. Isso só existe se alguém 
 | **trivial** | typo, rename local, bump, formatação | executa direto, com prova. Sem plano, sem branch |
 | **bug** | comportamento errado e reproduzível | reproduz → causa raiz (`leveza`) → corrige → `prova` |
 | **mudança** | comportamento novo ou diferente | `plano` → `execucao` → `prova` |
-| **investigação** | ninguém sabe ainda o que está errado | mede antes de propor; só depois vira bug ou mudança |
+| **investigação** | ninguém sabe ainda o que está errado | hipóteses derrubadas por dado (`rules/hipoteses.md`); só depois vira bug ou mudança |
 | **consulta** | pergunta de fato | responde. Sem branch, sem plano, sem cerimônia |
+
+🔴 **Produção afetada?** `rules/incidente.md` antes de qualquer outra coisa: investigar é
+ler, agir em produção exige aprovação explícita.
 
 🔴 **O tipo declarado no rastreador não decide.** É alegação. Sintoma, alcance e estado
 do código decidem. Ticket marcado "Bug" que pede comportamento novo é **mudança**.

@@ -53,6 +53,17 @@ o fato certo (ex.: "aqui a base é `development`"), grave o valor com origem
 `declarado: <quem disse e por quê>`. O instalador preserva linha declarada e cala a
 medição daquela chave.
 
+Chaves que **só** existem declaradas — nenhuma medição as descobre:
+
+| Chave | Exemplo de valor | Quem lê |
+|---|---|---|
+| `repos_irmaos` | `../app-api ../app-worker` | `plano/rules/multi-repo.md` |
+| `logs` | `docker logs app-api` · URL do painel | `triagem/rules/incidente.md` |
+| `metricas` | URL do painel de métricas | `triagem/rules/incidente.md` |
+| `banco_leitura` | como abrir conexão **só leitura** | `triagem/rules/incidente.md` |
+
+Nunca grave credencial: o valor diz **como** chegar, nunca a senha.
+
 ## 2b. `produto.md` — a verdade durável, separada dos fatos técnicos
 
 🔴 `perfil.tsv` guarda fato **técnico** que muda com o repositório (comando de build,
