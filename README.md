@@ -57,6 +57,11 @@ pedido, bug ou chave de issue
 | `aprender` | a sessão ensinou algo | episódio de memória durável |
 | `leveza` | sempre | a menor solução que funciona, e a dívida marcada |
 
+**Para quem é de produto**, a peça `demanda` vem antes de tudo isso: transforma uma ideia ou
+pedido de cliente numa história pronta para engenharia — investiga o que já existe, pergunta só
+o que muda o resultado e registra no rastreador depois de aprovada. Funciona no Claude Code e,
+para quem não usa terminal, como skill do claude.ai ([abaixo](#para-o-time-de-produto)).
+
 **Os cinco princípios**
 
 1. Mudança não trivial não escreve código sem plano.
@@ -139,6 +144,31 @@ descrição. Não precisa escolher skill.
 | mudança em front e API | um plano para os dois, com ordem de merge |
 
 ---
+
+## Para o time de produto
+
+A skill `demanda` leva uma ideia até a história no rastreador (Jira, pelo conector da Atlassian):
+
+1. Você descreve a ideia, cola o pedido do cliente ou um link.
+2. Ela investiga o que já existe — issues parecidas e, no Claude Code, o código de todos os
+   repositórios do produto.
+3. Pergunta só o que muda o resultado, uma coisa por vez.
+4. Escreve no formato que o projeto já usa: objetivo, exemplo prático, situação atual, regras,
+   cenários, critérios de aceite, fora de escopo e pendências.
+5. Mostra, e só cria depois do seu "sim" — como **Story**, filha do épico certo. As tasks
+   técnicas por repositório ficam com o `plano` do time de engenharia.
+
+**No claude.ai (sem terminal):** alguém do time gera o pacote uma vez —
+
+```bash
+bash ~/.prumo-kit/empacotar.sh demanda ~/Downloads
+```
+
+— e quem é de produto envia o `demanda.zip` em *Configurações → Capacidades → Skills* do
+claude.ai e conecta o **Atlassian** em *Configurações → Conectores*. O pacote segue a
+[especificação de Agent Skills](https://agentskills.io/specification).
+
+**No Claude Code:** já vem com o prumo; peça "cria uma demanda para…".
 
 ## Ajustar ao projeto
 

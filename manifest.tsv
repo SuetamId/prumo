@@ -20,6 +20,7 @@ skill	prova	ambos	nao	evidência antes de afirmação; em UI a prova é a tela
 skill	ui-plano	ambos	nao	escada de referência visual e plano de UI
 skill	aprender	ambos	nao	episódio durável e indexado
 skill	leveza	ambos	sim	a menor solução que funciona; sempre ativa
+skill	demanda	ambos	nao	ideia de produto vira história pronta para engenharia, registrada no rastreador
 reference	triagem/rules/adocao	ambos	nao	lê o projeto existente e preenche só a lacuna
 reference	ui-plano/rules/mapear-padroes	ambos	nao	degrau 3: extrai o vocabulário visual do próprio produto
 reference	ui-plano/rules/qualidade-ui	ambos	nao	piso de acessibilidade, estados, hierarquia, ritmo
@@ -31,6 +32,8 @@ reference	triagem/rules/hipoteses	ambos	nao	três hipóteses falsificáveis, der
 reference	triagem/rules/incidente	ambos	nao	produção: só leitura, fato × hipótese, dois vereditos
 reference	ui-plano/rules/anti-slop	ambos	nao	marcas de UI gerada por modelo + detector determinístico; cede ao Impeccable quando ele existe
 reference	leveza/rules/ledger	ambos	nao	colhe os atalhos marcados para um registro de dívida
+reference	demanda/rules/investigar	ambos	nao	lê rastreador e todos os repositórios do produto antes de perguntar; sem código, não afirma
+reference	demanda/rules/rastreador	ambos	nao	registra uma vez, relê pela chave; não cria tasks técnicas
 reference	aprender/rules/hub	ambos	nao	lição do time vai para o Hub de memória; três destinos, busca na triagem
 reference	aprender/rules/selecao	ambos	nao	ranqueia instintos com piso e teto; memória cresce, contexto não
 reference	execucao/rules/estilo-do-projeto	ambos	nao	deriva de estilo: o modelo impondo os idiomas que treinou
@@ -39,3 +42,4 @@ script	mapear-codebase	ambos	nao	deriva contexto do código quando não há docu
 script	detectar-slop	ambos	nao	11 regras determinísticas de UI gerada por modelo
 template	plano	ambos	nao	esqueleto do plano executável
 template	ui-plano	ambos	nao	esqueleto do plano de UI
+template	historia	ambos	nao	esqueleto da história de negócio (demanda)
