@@ -3,8 +3,15 @@
 Roteiro para um agente (Claude Code) montar a máquina de uma pessoa: kit, repositórios por
 produto, prumo instalado, dependências, testes rodando e conexão com o Hub de memória.
 
-A pessoa cola um prompt curto (modelo no fim deste arquivo) com quatro dados: a **org** no
-GitHub, os **produtos**, a **pasta base** e o endereço do **Hub**. Todo o resto está aqui.
+A pessoa cola um prompt curto (modelo no fim deste arquivo) com a **org** no GitHub, os
+**produtos** e o endereço do **Hub**. Todo o resto está aqui.
+
+O prompt roda a partir de **qualquer pasta**: todo caminho aqui é absoluto. Fora da pasta em
+que a sessão abriu, o Claude Code pede permissão para ler e escrever — é esperado; explique
+isso à pessoa antes do primeiro pedido.
+
+**Pasta base** (onde os produtos vão morar): se o prompt não trouxer, **pergunte**, sugerindo
+`~/Dev/<org em minúsculas>`. Nunca escolha sozinho: cada pessoa organiza a máquina de um jeito.
 
 ---
 
@@ -47,11 +54,16 @@ Clone recusado (404 / permission denied) = a pessoa não tem acesso ao repositó
 
 ## 3. Levantamento — antes de criar ou mover qualquer coisa
 
-Procure clones que já existam dos repositórios dos produtos dentro da pasta base:
+Procure clones que já existam dos repositórios da org **em qualquer lugar da home**, pelo
+remote — não pelo nome da pasta, que cada pessoa escolhe:
 
 ```bash
-find <PASTA_BASE> -maxdepth 3 -name .git -prune 2>/dev/null
+find ~ -maxdepth 5 \( -path ~/Library -o -name node_modules -o -name .venv -o -path '*/.Trash' \) -prune -o -name .git -print 2>/dev/null \
+  | while read g; do r="${g%/.git}"; u=$(git -C "$r" remote get-url origin 2>/dev/null); case "$u" in *[:/]<ORG>/*) echo "$r  $u" ;; esac; done
 ```
+
+Achou clone de um produto fora da pasta base? Ele entra no levantamento e na migração do
+passo 5 do mesmo jeito — o trabalho em andamento dele é o que mais importa preservar.
 
 Para cada clone encontrado, meça e mostre numa tabela:
 
@@ -92,14 +104,22 @@ git -C <antigo> status --porcelain --ignored
 
 | O quê | Para onde |
 |---|---|
-| `.env`, `.env.local` | mesma posição no clone novo (cópia de arquivo, sem ler) |
-| alteração local em arquivo de configuração (ex.: URL da API em `environment.ts`) | mostre só as linhas trocadas e reaplique no clone novo |
+| **configuração local** — tudo que o `--ignored` listar e se encaixe: `.env*` (menos `.env.example`), `*.local.*`, `.npmrc`, `docker-compose.override.yml`, `.flaskenv`, `config/local*`, `.claude/settings.local.json`, `.vscode/settings.json` | mesma posição no clone novo — `cp -n` (**nunca sobrescreve** o que já estiver lá), sem ler o conteúdo |
+| alteração local em arquivo **versionado** de configuração (ex.: URL da API em `environment.ts`) | mostre só as linhas trocadas e reaplique no clone novo |
 | `tasks/` e `docs/ai-harness/memoria/` — **de todos os worktrees** (memória costuma nascer dentro de um) | clone novo; memórias unidas, a mais recente vence |
 | stashes | `git stash show -p --include-untracked stash@{N}` → `tasks/stashes-antigos/N-<nome>.patch` |
 | commits só locais e trabalho descartado | `git format-patch` / `git diff HEAD` → `tasks/descartado-*/` |
 | memória do Claude Code daquele caminho | `~/.claude/projects/<caminho com / e . trocados por ->/memory/` → mesmo esquema no caminho novo |
 
-Confira que nada saiu vazio (`find … -size 0`) e só então:
+Confira que nada saiu vazio (`find … -size 0`) e que **nenhuma variável ficou para trás** —
+comparando só os **nomes**, nunca os valores:
+
+```bash
+diff <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' <antigo>/.env | sort) <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' <novo>/.env | sort)
+```
+
+(`<(…)` é bash/zsh; no fish, rode dentro de `bash -c '…'`.) Saída vazia = mesmas variáveis.
+Só então:
 
 ```bash
 osascript -e 'tell application "Finder" to delete POSIX file "<antigo>"'
@@ -107,6 +127,21 @@ osascript -e 'tell application "Finder" to delete POSIX file "<antigo>"'
 
 Arquivo de workspace do editor (`*.code-workspace`) que apontava para o antigo: atualize os
 caminhos.
+
+### Sem clone antigo — `.env` do zero
+
+Repositório que nunca esteve na máquina não tem `.env`. **Não invente valor.**
+
+1. Procure outro clone do mesmo repositório (o levantamento do passo 3 acha por remote) e
+   worktrees dele — o `.env` pode estar lá.
+2. Não achou e existe `.env.example`: copie para `.env` e liste à pessoa **os nomes** das
+   variáveis que ficaram com valor de exemplo — ela preenche (vem de quem já roda o projeto,
+   ou do painel do ambiente de dev).
+3. Nem exemplo existe: leia onde o código lê variáveis (`os.environ`, `process.env`,
+   `pydantic` `Settings`) e liste os nomes. Pendência com nome no relatório.
+
+Teste que falha por variável ausente **não é** teste quebrado — é pendência de configuração.
+Diga isso, não "corrija" o teste.
 
 ## 6. Dependências
 
@@ -149,6 +184,9 @@ onde o time integra e declare.
    prumo-workspace --hub <URL-DO-HUB>
    ```
 
+   Já existe chave válida na máquina (`~/.config/prumo/hub-key`)? O comando reaproveita e
+   não pede de novo — só reconfigura os clientes.
+
 4. Confira:
 
    ```bash
@@ -190,8 +228,8 @@ Instale e configure o prumo na minha máquina. Você é responsável pelo result
 3. Dados:
    - org no GitHub: <ORG>
    - produtos: <produto1>, <produto2>
-   - pasta base: <PASTA_BASE>
    - Hub de memória: <URL-DO-HUB>
+   - pasta base: pergunte-me onde eu quero os projetos
 4. Não apague nada sem me perguntar e nunca me peça segredo no chat.
 5. Termine com o relatório do passo 11.
 ```
