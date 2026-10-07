@@ -205,6 +205,14 @@ bash skills/ui-plano/scripts/detectar-slop.sh <dir>    # 11 regras de UI gerada 
 bash skills/aprender/scripts/gerar-indice.sh <dir>     # índice de memória, gerado do disco
 ```
 
+## Conferir o kit
+
+```bash
+bash check.sh   # manifesto, referências, neutralidade, orçamento e uma instalação real
+```
+
+Roda em todo push e PR. Regra do `AGENTS.md` que pode ser medida está aqui.
+
 ## Créditos
 
 - A escada de leveza e a convenção de dívida derivam do

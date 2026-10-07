@@ -137,6 +137,8 @@ if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
     [ "$t" -gt "${t_def:-0}" ] && { base=$b; ori="origin/$b mais recente que origin/${def:-?} (git-flow)"; break; }
   done
   medir branch_base "$base" "$ori"
+  url="$(git -C "$ALVO" remote get-url origin 2>/dev/null)"
+  case "$url" in *github.com*) medir forge github "remote origin" ;; *gitlab*) medir forge gitlab "remote origin" ;; esac
   n=$(git -C "$ALVO" log --format=%s -60 2>/dev/null | wc -l | tr -d ' ')
   if [ "${n:-0}" -ge 10 ]; then
     c=$(git -C "$ALVO" log --format=%s -60 2>/dev/null \
