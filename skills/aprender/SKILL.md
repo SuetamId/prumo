@@ -26,7 +26,7 @@ valor com validade vai para `perfil.tsv`.
 ## A forma
 
 Um arquivo por instinto em `docs/ai-harness/memoria/<id>.md`. Template em
-`.prumo/templates/instinto.md`.
+`templates/instinto.md` (desta skill).
 
 ```yaml
 ---
@@ -92,7 +92,7 @@ Promover é ato humano. O agente **propõe** e nomeia os dois projetos.
 Memória cresce para sempre; contexto não. A seleção é ranqueada e com teto:
 
 ```bash
-bash scripts/selecionar-instintos.sh          # os que valem para esta sessão
+bash scripts/selecionar-instintos.sh          # scripts/ desta skill · os que valem para esta sessão
 ```
 
 Ordena por `confianca` mais os bônus, corta no piso e no teto. Detalhe e números em
@@ -109,7 +109,7 @@ Ordena por `confianca` mais os bônus, corta no piso e no teto. Detalhe e númer
 ## O índice é gerado
 
 ```bash
-bash scripts/gerar-indice.sh docs/ai-harness/memoria/
+bash scripts/gerar-indice.sh docs/ai-harness/memoria/   # scripts/ desta skill
 ```
 
 Escreveu instinto? Rode. Índice escrito à mão mente no dia em que alguém renomeia um

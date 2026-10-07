@@ -36,7 +36,7 @@ O artefato é escrito **uma vez** e renderizado para cada cliente:
 
 | Cliente | Onde lê | Forma |
 |---|---|---|
-| Claude Code | `.claude/skills/<nome>/SKILL.md` | skill com frontmatter `name`/`description` |
+| Claude Code | `~/.claude/skills/<nome>/SKILL.md` (global) | skill com frontmatter `name`/`description` |
 | Cursor | `.cursor/rules/<nome>.mdc` | rule com frontmatter `description`/`alwaysApply` |
 
 Ambos também leem `AGENTS.md` na raiz. Fonte única em `skills/`; o instalador converte.

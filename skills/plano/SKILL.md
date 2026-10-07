@@ -31,7 +31,7 @@ Grava em **`tasks/prd-<slug>/plan.md`** — local, fora do git (`perfil.tsv:work
 O que merecer sobreviver à entrega vai depois para o registro durável do projeto
 (`perfil.tsv:registro_duravel`); o andaime morre com a feature.
 
-Template em `.prumo/templates/plano.md`. Obrigatórios:
+Template em `templates/plano.md` (desta skill). Obrigatórios:
 
 1. **Objetivo** — uma frase, no que muda para o usuário, não no que muda no código.
 2. **Contexto embutido** — comandos de build/teste/lint do `perfil.tsv`, convenções, e o

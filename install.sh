@@ -54,13 +54,20 @@ PY
 [ "$SECO" = 1 ] && PERFIL="$(mktemp)" || PERFIL="$ALVO/perfil.tsv"
 { echo "# Fatos MEDIDOS deste projeto. Escrito pela adoção — regenerado a cada install."
   echo "# Linha sem origem não existe: fato sem procedência é chute."
+  echo "# Medição errada? Corrija o valor e troque a origem por 'declarado: <motivo>'."
+  echo "# Linha declarada sobrevive ao reinstall e cala a medição da mesma chave."
   echo "#"
   echo "# chave	valor	origem"
 } > "$PERFIL.novo"
 
 reg(){ printf '%s\t%s\t%s\n' "$1" "$2" "$3" >> "$PERFIL.novo"; }
+# DECLARADO vence MEDIDO. MEDIDO num projeto real: origin/HEAD é main e o time
+# integra em development — nenhuma medição acerta isso, quem sabe é gente.
+DECL=""
+[ -f "$ALVO/perfil.tsv" ] && DECL="$(awk -F'\t' '$3 ~ /^declarado/' "$ALVO/perfil.tsv")"
 n_fatos=0
-medir(){ # chave · valor · origem  — só registra se o valor existir
+medir(){ # chave · valor · origem  — só registra se o valor existir e não houver declaração
+  [ -n "$DECL" ] && printf '%s\n' "$DECL" | cut -f1 | grep -qxF "$1" && return 0
   [ -n "${2:-}" ] && { reg "$1" "$2" "$3"; n_fatos=$((n_fatos+1)); }
 }
 
@@ -120,13 +127,15 @@ done
 # git: convenção MEDIDA, nunca declarada
 if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
   # Base é para onde o trabalho integra, NUNCA a branch em que o install rodou.
-  # git-flow (develop/development no remoto) vence o default do remoto.
-  base=""; ori=""
+  # git-flow: develop(ment) só vence a default do remoto se estiver VIVA (commit mais
+  # novo) — um develop abandonado num repo trunk-based não pode virar base.
+  def="$(git -C "$ALVO" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)"; def="${def#origin/}"
+  base="$def"; ori="origin/HEAD"
+  t_def=$(git -C "$ALVO" log -1 --format=%ct "origin/$def" 2>/dev/null || echo 0)
   for b in development develop; do
-    git -C "$ALVO" rev-parse -q --verify "refs/remotes/origin/$b" >/dev/null && { base=$b; ori="origin/$b existe (git-flow)"; break; }
+    t=$(git -C "$ALVO" log -1 --format=%ct "origin/$b" 2>/dev/null) || continue
+    [ "$t" -gt "${t_def:-0}" ] && { base=$b; ori="origin/$b mais recente que origin/${def:-?} (git-flow)"; break; }
   done
-  [ -z "$base" ] && base="$(git -C "$ALVO" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)" \
-                 && base="${base#origin/}" && ori="origin/HEAD"
   medir branch_base "$base" "$ori"
   n=$(git -C "$ALVO" log --format=%s -60 2>/dev/null | wc -l | tr -d ' ')
   if [ "${n:-0}" -ge 10 ]; then
@@ -180,8 +189,10 @@ if [ -f "$ALVO/package.json" ]; then
   medir design_system "$ds" "package.json:dependencies"
 fi
 
+n_decl=0
+[ -n "$DECL" ] && { printf '%s\n' "$DECL" >> "$PERFIL.novo"; n_decl=$(printf '%s\n' "$DECL" | wc -l | tr -d ' '); }
 mv "$PERFIL.novo" "$PERFIL"
-ok "perfil.tsv: $n_fatos fato(s) medido(s)"
+ok "perfil.tsv: $n_fatos fato(s) medido(s) · $n_decl declarado(s), preservado(s)"
 [ "$n_fatos" = 0 ] && avi "nenhum fato medido — os artefatos vão responder SEM MEDIR, que é honesto"
 
 if   [ -f "$ALVO/AGENTS.md" ]; then IDX_SECO="AGENTS.md (existe)"
@@ -197,7 +208,7 @@ if [ "$SECO" = 1 ]; then
   echo; echo "── Fatos que seriam gravados ──"
   grep -v '^#' "$PERFIL" | while IFS=$'\t' read -r k v o; do printf '  %-26s %-44s %s\n' "$k" "$v" "$o"; done
   echo; echo "── O que seria escrito ──"
-  for f in "$IDX_SECO" .agents/skills/ .claude/skills/ .cursor/rules/ .prumo/templates/ docs/ai-harness/memoria/ scripts/ perfil.tsv; do
+  for f in "$IDX_SECO" "~/.claude/skills/ (global)" .agents/skills/ .cursor/rules/ .prumo/contexto.md docs/ai-harness/memoria/ perfil.tsv; do
     [ -n "$f" ] && printf '  %s\n' "$f"
   done
   echo; echo "Dry-run: nada foi escrito."
@@ -205,17 +216,31 @@ if [ "$SECO" = 1 ]; then
 fi
 
 # ── 2 · ARTEFATOS — uma fonte, dois clientes ─────────────────────────────────
+# Claude Code: skill GLOBAL, symlink para o kit. MEDIDO: skill instalada no projeto
+# e não commitada sumia em todo worktree — e o Claude Code desktop abre um worktree
+# por sessão. Global chega a qualquer worktree, e `git pull` no kit já atualiza.
+# Cursor: lê do projeto, então recebe a cópia em .agents/skills + .mdc renderizado.
 echo; echo "── 2 · Artefatos ──"
-mkdir -p "$ALVO/.agents/skills" "$ALVO/.claude/skills" "$ALVO/.cursor/rules"
+GLOBAL="$HOME/.claude/skills"
+mkdir -p "$GLOBAL" "$ALVO/.agents/skills" "$ALVO/.cursor/rules"
 
 n_sk=0
 while IFS=$'\t' read -r kind nome alvo sempre _; do
   case "$kind" in ''|'#'*) continue ;; skill) ;; *) continue ;; esac
+
+  # global: só substitui o que já é nosso — skill homônima de outra fonte fica
+  g="$GLOBAL/$nome"
+  if [ -e "$g" ] && ! { [ -L "$g" ] && [ "$(readlink "$g")" = "$KIT/skills/$nome" ]; }; then
+    avi "$g já existe e não é do prumo — mantido; a skill $nome NÃO foi instalada globalmente"
+  else
+    ln -sfn "$KIT/skills/$nome" "$g"
+  fi
+  # o symlink de projeto que versões anteriores criavam duplicaria a skill global
+  [ -L "$ALVO/.claude/skills/$nome" ] && [ "$(readlink "$ALVO/.claude/skills/$nome")" = "../../.agents/skills/$nome" ] \
+    && rm -f "$ALVO/.claude/skills/$nome"
+
   rm -rf "$ALVO/.agents/skills/$nome"
   cp -R "$KIT/skills/$nome" "$ALVO/.agents/skills/$nome"
-
-  # Claude Code: symlink, para o conteúdo existir uma vez só no disco
-  ln -sfn "../../.agents/skills/$nome" "$ALVO/.claude/skills/$nome"
 
   # Cursor: .mdc renderizado do mesmo SKILL.md
   src="$KIT/skills/$nome/SKILL.md"
@@ -226,30 +251,32 @@ while IFS=$'\t' read -r kind nome alvo sempre _; do
     echo "alwaysApply: $aa"
     echo "---"
     echo
-    echo "> Fonte canônica: \`.agents/skills/$nome/SKILL.md\`. As references citadas"
-    echo "> como \`rules/*.md\` vivem em \`.agents/skills/$nome/rules/\`."
+    echo "> Fonte canônica: \`.agents/skills/$nome/SKILL.md\`. Os caminhos \`rules/\`,"
+    echo "> \`scripts/\` e \`templates/\` citados abaixo vivem em \`.agents/skills/$nome/\`."
     echo
     awk 'BEGIN{k=0} /^---$/{k++; next} k>=2' "$src"
   } > "$ALVO/.cursor/rules/$nome.mdc"
   n_sk=$((n_sk+1))
 done < "$KIT/manifest.tsv"
-ok "$n_sk skills → .agents/skills/ · .claude/skills/ (symlink) · .cursor/rules/ (.mdc)"
-
-mkdir -p "$ALVO/.prumo/templates"
-cp "$KIT"/templates/*.md "$ALVO/.prumo/templates/" 2>/dev/null
-ok "templates → .prumo/templates/"
+ok "$n_sk skills → ~/.claude/skills/ (global, symlink ao kit) · .agents/skills/ + .cursor/rules/ (Cursor)"
 
 mkdir -p "$ALVO/tasks" "$ALVO/docs/ai-harness/memoria"
-mkdir -p "$ALVO/scripts"
-for s in gerar-indice.sh detectar-slop.sh mapear-codebase.sh selecionar-instintos.sh; do
-  [ -f "$KIT/scripts/$s" ] && { cp "$KIT/scripts/$s" "$ALVO/scripts/$s"; chmod +x "$ALVO/scripts/$s"; }
+ok "memória → docs/ai-harness/memoria/"
+
+# Versões anteriores copiavam scripts/ e templates para o projeto; agora moram na
+# skill. Só some o que é byte a byte nosso — script do projeto com o mesmo nome fica.
+rm -rf "$ALVO/.prumo/templates"
+for s in triagem/scripts/mapear-codebase.sh ui-plano/scripts/detectar-slop.sh \
+         aprender/scripts/gerar-indice.sh aprender/scripts/selecionar-instintos.sh; do
+  f="$ALVO/scripts/${s##*/}"
+  [ -f "$f" ] && cmp -s "$f" "$KIT/skills/$s" && rm -f "$f"
 done
-ok "memória → docs/ai-harness/memoria/ · scripts → scripts/"
+rmdir "$ALVO/scripts" 2>/dev/null || true
 
 # Contexto derivado do CÓDIGO — é o que salva o harness em projeto sem documentação.
 # Vai para .prumo/ (local, fora do git) porque derivado é regenerável: não há o
 # que preservar, e assim não impomos estrutura no repositório de ninguém.
-if bash "$KIT/scripts/mapear-codebase.sh" "$ALVO" >/dev/null 2>&1; then
+if bash "$KIT/skills/triagem/scripts/mapear-codebase.sh" "$ALVO" >/dev/null 2>&1; then
   lac=$(sed -n '/## Lacunas/,$p' "$ALVO/.prumo/contexto.md" 2>/dev/null | grep -c '^- ' || true)
   ok "contexto derivado → .prumo/contexto.md ($lac lacuna(s) nomeada(s))"
   [ "${lac:-0}" -gt 0 ] && sed -n '/## Lacunas/,$p' "$ALVO/.prumo/contexto.md" | grep '^- ' | sed 's/^- /      · /'
@@ -276,8 +303,8 @@ BLOCO=$(mktemp)
     case "$kind" in skill) printf '| `%s` | %s |\n' "$nome" "$nota" ;; esac
   done < "$KIT/manifest.tsv"
   echo
-  echo "Fatos medidos deste projeto: \`perfil.tsv\`. Conhecimento sob demanda:"
-  echo "\`.agents/skills/<peça>/rules/\`. Memória: \`docs/ai-harness/memoria/\`."
+  echo "Fatos deste projeto: \`perfil.tsv\`. Memória: \`docs/ai-harness/memoria/\`."
+  echo "\`rules/\`, \`scripts/\` e \`templates/\` citados numa skill são relativos à pasta dela."
   echo "$FIM"
 } > "$BLOCO"
 
@@ -349,20 +376,19 @@ prova(){ [ -e "$2" ] && ok "$1" || { printf '  \033[31m✗\033[0m %s\n' "$1"; fa
 prova "perfil.tsv"                       "$ALVO/perfil.tsv"
 prova "índice canônico ($(basename "$IDX"))" "$IDX"
 prova "skill canônica (leveza)"          "$ALVO/.agents/skills/leveza/SKILL.md"
-prova "symlink do Claude Code"           "$ALVO/.claude/skills/leveza"
+prova "skill global do Claude Code"      "$HOME/.claude/skills/leveza/SKILL.md"
 prova "rule do Cursor"                   "$ALVO/.cursor/rules/leveza.mdc"
 prova "reference de custo zero"          "$ALVO/.agents/skills/ui-plano/rules/qualidade-ui.md"
-prova "template de UI"                   "$ALVO/.prumo/templates/ui-plano.md"
+prova "template de UI"                   "$ALVO/.agents/skills/ui-plano/templates/ui-plano.md"
 prova "diretório de memória"             "$ALVO/docs/ai-harness/memoria"
 prova "workspace ativo (local)"          "$ALVO/tasks"
 prova "contexto derivado do código"      "$ALVO/.prumo/contexto.md"
 grep -qF "$INI" "$IDX" && ok "bloco gerenciado presente" || { echo "  ✗ bloco ausente"; falhou=1; }
 
-# Worktree só recebe o que é RASTREADO. Skill não commitada existe aqui e some em
-# todo worktree — e o Claude Code desktop abre um worktree por sessão.
-if git -C "$ALVO" ls-files --others --exclude-standard -- .agents/skills .claude/skills .cursor/rules 2>/dev/null | grep -q .; then
-  avi "skills não commitadas: worktrees NÃO as veem"
-  printf '      commite .agents/skills .claude/skills .cursor/rules — ou rode o install.sh dentro de cada worktree\n'
+# Worktree só recebe o que é RASTREADO. O Claude Code lê a skill global e não
+# depende disso; o Cursor lê do projeto, e aí o que não foi commitado some.
+if git -C "$ALVO" ls-files --others --exclude-standard -- .agents/skills .cursor/rules 2>/dev/null | grep -q .; then
+  inf "Cursor: .agents/skills e .cursor/rules não commitados — worktrees do Cursor não os veem"
 fi
 
 echo
