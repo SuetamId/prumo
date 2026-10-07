@@ -53,7 +53,8 @@ o fato certo (ex.: "aqui a base é `development`"), grave o valor com origem
 `declarado: <quem disse e por quê>`. O instalador preserva linha declarada e cala a
 medição daquela chave.
 
-Chaves que **só** existem declaradas — nenhuma medição as descobre:
+Chaves que a medição não descobre — `repos_irmaos` é a exceção, medida quando o projeto
+está num workspace do `prumo-workspace`:
 
 | Chave | Exemplo de valor | Quem lê |
 |---|---|---|

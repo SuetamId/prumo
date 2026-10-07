@@ -29,6 +29,24 @@ bash ~/.prumo-kit/install.sh .
 Pronto. Reinicie o agente (Claude Code ou Cursor) para ele carregar as skills, e cole o
 seu pedido — a triagem escolhe a rota.
 
+### Um produto inteiro, de uma vez
+
+Produto com vários repositórios (front, API, worker, site)? Um comando monta a pasta,
+clona o que falta, dá pull no que existe e instala o prumo em cada um:
+
+```bash
+bash ~/.prumo-kit/workspace.sh <org> <produto> --jira
+```
+
+- Repositório do produto é o que tem o nome `<produto>-*` **ou** o topic `<produto>` no
+  GitHub. O topic resolve a exceção de nome.
+- A pasta padrão é `~/<org>/<produto>/`; mude com `--dir`.
+- Cada repositório já sai com os outros em `perfil.tsv:repos_irmaos`.
+- `--jira` registra o MCP oficial da Atlassian no Claude Code e no Cursor; o login é
+  feito no próprio cliente (no Claude Code, `/mcp`).
+- Precisa do `gh` com login. Não instala ferramenta nem mexe na sua identidade git.
+- Depois da primeira instalação, o atalho é `prumo-workspace`.
+
 ### Ver antes de escrever
 
 Mede o projeto e mostra tudo que faria, sem tocar em um byte:
