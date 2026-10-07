@@ -90,29 +90,39 @@ prumo não está instalado ali — então serve em CI também.
 
 | Caminho | Vai pro git? | O que é |
 |---|---|---|
-| `.agents/skills/` | sim | as skills, fonte canônica |
-| `.claude/skills/` | sim | symlinks para a fonte canônica |
+| `~/.claude/skills/<peça>` | — | **global**: symlink para o kit; `git pull` no kit já atualiza |
+| `.agents/skills/` | sim | cópia das skills, para o Cursor |
 | `.cursor/rules/*.mdc` | sim | as mesmas skills, no formato do Cursor |
 | bloco em `AGENTS.md` ou `CLAUDE.md` | sim | ponteiro, entre marcadores |
 | `docs/ai-harness/memoria/` | sim | os episódios que o harness aprender |
-| `scripts/` | sim | mapeador de contexto, detector, gerador de índice |
-| `perfil.tsv` · `produto.md` | **não** | fatos medidos do projeto |
+| `perfil.tsv` · `produto.md` | **não** | fatos do projeto — medidos, ou declarados por você |
 | `tasks/` | **não** | plano e tasks em andamento |
-| `.prumo/` | **não** | contexto derivado e templates |
+| `.prumo/` | **não** | contexto derivado do código |
 
 O que não vai pro git entra em `.git/info/exclude` — local, sem diff, sem sujar a árvore
 de ninguém.
 
 > **Worktrees** (o Claude Code desktop cria um por sessão) só recebem o que está
-> **commitado**. Commite as linhas "sim" acima, ou as skills não aparecem lá. Os itens
-> "não" ficam no checkout principal; a triagem sabe buscá-los ali.
+> **commitado**. Por isso as skills do Claude Code são globais: chegam a qualquer
+> worktree. O `perfil.tsv` fica no checkout principal, e a triagem sabe buscá-lo ali.
+
+### Medição errada? Declare
+
+O `perfil.tsv` é regenerado a cada install. Para corrigir um fato que a medição erra —
+a branch base, por exemplo —, edite o valor e troque a origem por `declarado: <motivo>`:
+
+```text
+branch_base	development	declarado: time integra em development
+```
+
+Linha declarada sobrevive ao reinstall e cala a medição da mesma chave.
 
 ### Desinstalar
 
 Remove as skills e tudo que é local:
 
 ```bash
-rm -rf .prumo tasks perfil.tsv produto.md .agents/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .claude/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .cursor/rules/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}.mdc
+rm -rf .prumo tasks perfil.tsv produto.md .agents/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .cursor/rules/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}.mdc
 ```
 
 E tira o bloco do seu índice:
@@ -121,14 +131,15 @@ E tira o bloco do seu índice:
 python3 -c "import re,sys,io; f=[x for x in ('AGENTS.md','CLAUDE.md') if __import__('os').path.isfile(x)][0]; t=open(f).read(); open(f,'w').write(re.sub(r'\n*<!-- prumo:start -->.*?<!-- prumo:end -->\n*','\n',t,flags=re.S)); print('bloco removido de',f)"
 ```
 
-**Duas coisas ficam de propósito, e elas são suas:**
+As skills globais servem a todos os seus projetos; para tirá-las da máquina:
 
-- `docs/ai-harness/memoria/` — os episódios que o harness aprendeu com o seu projeto.
-  Apagar isso seria destruir conhecimento que você escreveu, não desinstalar ferramenta.
-- `scripts/` — o mapeador de contexto, o detector e o gerador de índice. São scripts
-  autônomos, sem dependência do resto: continuam funcionando sozinhos se você quiser.
+```bash
+rm -f ~/.claude/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}
+```
 
-Apague os dois à mão se realmente quiser zerar.
+**`docs/ai-harness/memoria/` fica de propósito:** são os episódios que o harness aprendeu
+com o seu projeto. Apagar isso seria destruir conhecimento que você escreveu, não
+desinstalar ferramenta. Apague à mão se realmente quiser zerar.
 
 ## Ele se adapta ao seu projeto, não o contrário
 
@@ -181,17 +192,17 @@ O artefato é escrito uma vez em `skills/` e renderizado:
 
 | Cliente | Onde | Forma |
 |---|---|---|
-| Claude Code | `.claude/skills/<n>` → symlink | `SKILL.md` |
+| Claude Code | `~/.claude/skills/<n>` → symlink para o kit | `SKILL.md` |
 | Cursor | `.cursor/rules/<n>.mdc` | rule, `alwaysApply` só em `leveza` |
 
-Canônico em `.agents/skills/`. Duas cópias mantidas à mão divergem.
+Canônico em `skills/` do kit. Duas cópias mantidas à mão divergem.
 
 ## Ferramentas
 
 ```bash
-bash scripts/mapear-codebase.sh <dir>   # deriva contexto do código
-bash scripts/detectar-slop.sh <dir>     # 11 regras de UI gerada por modelo
-bash scripts/gerar-indice.sh <dir>      # índice de memória, gerado do disco
+bash skills/triagem/scripts/mapear-codebase.sh <dir>   # deriva contexto do código
+bash skills/ui-plano/scripts/detectar-slop.sh <dir>    # 11 regras de UI gerada por modelo
+bash skills/aprender/scripts/gerar-indice.sh <dir>     # índice de memória, gerado do disco
 ```
 
 ## Créditos

@@ -3,9 +3,9 @@
 #
 # kind    skill     = tem SKILL.md; a descrição fica residente, o modelo decide carregar
 #         reference = SEM SKILL.md; custo residente ZERO, lido por caminho
-#         template  = arquivo copiado para o projeto, preenchido pelo uso
+#         template  = esqueleto em skills/<dona>/templates/, preenchido pelo uso
 #
-# alvo    ambos     = Claude Code (.claude/skills/) e Cursor (.cursor/rules/)
+# alvo    ambos     = Claude Code (~/.claude/skills/, global) e Cursor (.cursor/rules/)
 #         claude    = só Claude Code
 #         cursor    = só Cursor
 #

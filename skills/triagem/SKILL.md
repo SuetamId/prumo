@@ -26,7 +26,7 @@ Sem `perfil.tsv`, confira se é um **worktree** — ele só recebe o que é rast
 cat "$(git rev-parse --path-format=absolute --git-common-dir)/../perfil.tsv"
 ```
 
-Use esse caminho também para `.prumo/templates/` — 🔴 **só leitura**. Toda escrita
+Use esse caminho também para `.prumo/contexto.md` — 🔴 **só leitura**. Toda escrita
 (`tasks/`, memória, código) vai no worktree em que a sessão roda: o checkout principal
 não é a branch desta sessão, e outra sessão pode estar mexendo nele. Só se nem lá existir o projeto nunca
 foi adotado → `rules/adocao.md` **antes** de seguir.
@@ -34,7 +34,7 @@ foi adotado → `rules/adocao.md` **antes** de seguir.
 **Projeto sem documentação?** Leia `.prumo/contexto.md` — contexto derivado do próprio
 código: stack, como se roda, onde o código mora, o que a esteira exige, e as **lacunas**.
 Ele é **gerado** e envelhece: confira o `HEAD` no cabeçalho contra o atual e regenere
-quando divergir (`bash scripts/mapear-codebase.sh`). 🔴 Ele dá **estrutura, nunca decisão** —
+quando divergir (`bash scripts/mapear-codebase.sh`, `scripts/` desta skill). 🔴 Ele dá **estrutura, nunca decisão** —
 o código não diz o que foi rejeitado nem por quê. Isso só existe se alguém escreveu.
 
 ## 2. Classifique

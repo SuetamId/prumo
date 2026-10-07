@@ -17,7 +17,7 @@ PODA=(-not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*'
 {
 echo "# Contexto derivado — ${ALVO##*/}"
 echo
-echo "> **GERADO** de \`scripts/mapear-codebase.sh\` em $(date +%Y-%m-%d) · HEAD \`$SHA\`."
+echo "> **GERADO** de \`triagem/scripts/mapear-codebase.sh\` em $(date +%Y-%m-%d) · HEAD \`$SHA\`."
 echo "> Não edite à mão — regenere. Derivado envelhece: confira o HEAD antes de confiar."
 echo "> Isto é **estrutura**, nunca decisão. O código não diz o que foi rejeitado."
 echo

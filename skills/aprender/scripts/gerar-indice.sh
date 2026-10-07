@@ -21,9 +21,9 @@ for f in sorted(glob.glob(os.path.join(d, "*.md"))):
                   fm.get("acao",""), int(fm.get("projetos","1") or 1)))
 itens.sort(key=lambda x: (-x[0], x[1]))
 L = ["# Memória — instintos", "",
-     "> **GERADO** por `scripts/gerar-indice.sh` a partir do disco. Não edite à mão.",
+     "> **GERADO** por `aprender/scripts/gerar-indice.sh` a partir do disco. Não edite à mão.",
      "> Ordenado por confiança. A seleção do que entra na sessão é outra coisa:",
-     "> `scripts/selecionar-instintos.sh`.", ""]
+     "> `aprender/scripts/selecionar-instintos.sh`.", ""]
 if not itens:
     L += ["_Nenhum instinto ainda._"]
 else:

@@ -73,7 +73,7 @@ Classe A ou B sem referência identificada: pergunte **uma vez**, com a saída p
 ## O plano de UI
 
 Antes da primeira linha de template. Grava em **`tasks/prd-<slug>/ui.md`**, ao lado do
-plano técnico e fora do git. Template em `.prumo/templates/ui-plano.md`, cinco blocos:
+plano técnico e fora do git. Template em `templates/ui-plano.md` (desta skill), cinco blocos:
 
 1. **Superfícies** — o que é tocado, como se chega, nova ou existente, referência de cada.
 2. **Estados** — vazio · carregando · erro · sem permissão · desabilitado. Uma linha por
@@ -92,7 +92,7 @@ plano técnico e fora do git. Template em `.prumo/templates/ui-plano.md`, cinco 
 detector determinístico no fim:
 
 ```bash
-bash scripts/detectar-slop.sh <dir>     # 0 limpo · 2 achados · 1 não mediu
+bash scripts/detectar-slop.sh <dir>     # scripts/ desta skill · 0 limpo · 2 achados · 1 não mediu
 ```
 
 **Se o Impeccable estiver instalado, ele manda** — ele é dedicado a isto, roda sobre o DOM

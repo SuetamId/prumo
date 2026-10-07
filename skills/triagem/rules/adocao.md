@@ -48,6 +48,11 @@ design_system	@acme/ui	package.json:dependencies
 toda decisão que vier depois. Não achou? A linha não existe — e o consumidor responde
 **SEM MEDIR**, que é a resposta honesta.
 
+**Medição errada é corrigida por declaração, nunca por chute.** Quando a pessoa disser
+o fato certo (ex.: "aqui a base é `development`"), grave o valor com origem
+`declarado: <quem disse e por quê>`. O instalador preserva linha declarada e cala a
+medição daquela chave.
+
 ## 2b. `produto.md` — a verdade durável, separada dos fatos técnicos
 
 🔴 `perfil.tsv` guarda fato **técnico** que muda com o repositório (comando de build,
