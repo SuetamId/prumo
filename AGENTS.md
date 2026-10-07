@@ -22,6 +22,9 @@ Sete peças, e a ordem importa. Cada uma só existe porque a anterior não cobre
 | 6 | `aprender` | a sessão ensinou algo | episódio durável, indexado |
 | 7 | `leveza` | sempre, em qualquer código | a menor solução que funciona + ledger de dívida |
 
+Antes da espinha, para quem é de produto: `demanda` transforma ideia em história de negócio no
+rastreador. Ela para na história — a divisão técnica por repositório é do `plano`.
+
 ## Os cinco princípios
 
 1. Mudança não trivial não escreve código sem plano. Ajuste trivial segue direto, com prova.

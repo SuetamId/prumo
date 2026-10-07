@@ -28,6 +28,14 @@ Para saber quem lê, procure em **todos** os irmãos, não só no repositório q
 for r in <repos_irmaos>; do git -C "$r" grep -n '<campo-ou-rota>'; done
 ```
 
+## Tasks no rastreador
+
+A demanda chegou como história de negócio (skill `demanda`)? A divisão por repositório nasce
+**aqui**, depois de ler o código de cada um: uma Task por repositório (`[BACKEND]`,
+`[FRONTEND]`… no padrão do projeto), filha da história, com o que muda naquele repositório e o
+contrato entre eles. Crie no rastreador só com confirmação — e nunca a de um repositório que
+você não leu.
+
 ## Ordem de merge
 
 1. Migração de dado — e só se for compatível com o código que já está em produção
