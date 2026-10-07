@@ -68,6 +68,9 @@ DECL=""
 n_fatos=0
 medir(){ # chave · valor · origem  — só registra se o valor existir e não houver declaração
   [ -n "$DECL" ] && printf '%s\n' "$DECL" | cut -f1 | grep -qxF "$1" && return 0
+  # a primeira evidência vale: as medições vêm em ordem de força, e chave repetida no
+  # perfil deixa o agente sem saber qual comando rodar (MEDIDO: Makefile + pyproject)
+  [ -f "$PERFIL.novo" ] && cut -f1 "$PERFIL.novo" | grep -qxF "$1" && return 0
   [ -n "${2:-}" ] && { reg "$1" "$2" "$3"; n_fatos=$((n_fatos+1)); }
 }
 
