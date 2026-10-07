@@ -12,13 +12,20 @@ Só Markdown e um instalador. Sem runtime, sem binário, sem dependência.
 
 ## Começar
 
+**Mais fácil: peça ao agente.** Cole no Claude Code o prompt de
+[`INSTALAR-COM-AGENTE.md`](INSTALAR-COM-AGENTE.md) (no fim do arquivo), com a sua org, os
+produtos, a pasta base e o endereço do Hub. Ele clona, organiza por produto, migra clones
+antigos sem perder nada, instala dependências, roda os testes e conecta ao Hub.
+
+Prefere fazer à mão:
+
 Você precisa de `git`, `python3` e — para o produto inteiro — o [`gh`](https://cli.github.com)
 com login (`gh auth login`).
 
 **1. Baixe o kit** (uma vez por máquina):
 
 ```bash
-git clone git@github.com:SuetamId/prumo.git ~/.prumo-kit
+git clone https://github.com/SuetamId/prumo.git ~/.prumo-kit
 ```
 
 **2. Instale.** Escolha um dos dois:

@@ -56,14 +56,20 @@ for p in sorted(glob.glob('skills/*/SKILL.md')+glob.glob('skills/*/rules/*.md'))
             ko(f"{p}: cita {m}, que não existe")
 if erros==n: ok("referências citadas existem")
 
-# 5 · neutralidade: nome de produto, cliente ou empresa nunca entra no artefato
-proibidos=re.compile(r'\b(buddy|girabr|indafire|automato|whaticket|solus|starian|projuris)\b',re.I)
-n=erros
-for p in sorted(glob.glob('skills/**/*',recursive=True)):
-    if os.path.isfile(p):
-        for i,l in enumerate(open(p,errors='ignore'),1):
-            if proibidos.search(l): ko(f"{p}:{i}: nome próprio no artefato")
-if erros==n: ok("neutralidade (nenhum produto ou cliente nos artefatos)")
+# 5 · neutralidade: nome de produto, cliente ou empresa nunca entra no artefato.
+# A lista é DADO, fora do repositório: publicada aqui, ela mesma vazaria os nomes.
+# Local: export PRUMO_NOMES_PROIBIDOS="nome1,nome2" · CI: secret do repositório (mascarado no log).
+nomes=[n.strip() for n in os.environ.get("PRUMO_NOMES_PROIBIDOS","").split(",") if n.strip()]
+if not nomes:
+    print("  \033[33m!\033[0m neutralidade NÃO MEDIDA — defina PRUMO_NOMES_PROIBIDOS")
+else:
+    proibidos=re.compile(r'\b(' + '|'.join(map(re.escape, nomes)) + r')\b', re.I)
+    n=erros
+    for p in sorted(glob.glob('skills/**/*',recursive=True)):
+        if os.path.isfile(p):
+            for i,l in enumerate(open(p,errors='ignore'),1):
+                if proibidos.search(l): ko(f"{p}:{i}: nome próprio no artefato")
+    if erros==n: ok(f"neutralidade ({len(nomes)} nomes proibidos, nenhum nos artefatos)")
 
 # credencial versionada
 seg=re.compile(r'(ghp_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY|xox[bp]-)')

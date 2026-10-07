@@ -141,8 +141,17 @@ if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
     t=$(git -C "$ALVO" log -1 --format=%ct "origin/$b" 2>/dev/null) || continue
     [ "$t" -gt "${t_def:-0}" ] && { base=$b; ori="origin/$b mais recente que origin/${def:-?} (git-flow)"; break; }
   done
-  medir branch_base "$base" "$ori"
+  # A evidência mais forte é para onde o time DE FATO mergeia. MEDIDO: num front a default
+  # era main, não havia develop, e todos os PRs iam para `internal` — nenhuma heurística
+  # de nome acerta isso. Só branch de vida longa (sem "/") conta; precisa de 3+ PRs.
   url="$(git -C "$ALVO" remote get-url origin 2>/dev/null)"
+  slug="$(printf '%s' "$url" | sed -E 's#(\.git)?$##; s#^.*github\.com[:/]##')"
+  if command -v gh >/dev/null && [ -n "$slug" ] && [ "$slug" != "$url" ]; then
+    pr_base="$(gh pr list -R "$slug" --state merged --limit 30 --json baseRefName --jq '.[].baseRefName' 2>/dev/null \
+      | grep -v / | sort | uniq -c | sort -rn | awk 'NR==1 && $1>=3 {print $2" "$1}')"
+    [ -n "$pr_base" ] && { base="${pr_base% *}"; ori="medido: ${pr_base#* } dos últimos PRs mergeados foram para $base"; }
+  fi
+  medir branch_base "$base" "$ori"
   case "$url" in *github.com*) medir forge github "remote origin" ;; *gitlab*) medir forge gitlab "remote origin" ;; esac
   n=$(git -C "$ALVO" log --format=%s -60 2>/dev/null | wc -l | tr -d ' ')
   if [ "${n:-0}" -ge 10 ]; then
