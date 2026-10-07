@@ -3,8 +3,15 @@
 Roteiro para um agente (Claude Code) montar a máquina de uma pessoa: kit, repositórios por
 produto, prumo instalado, dependências, testes rodando e conexão com o Hub de memória.
 
-A pessoa cola um prompt curto (modelo no fim deste arquivo) com quatro dados: a **org** no
-GitHub, os **produtos**, a **pasta base** e o endereço do **Hub**. Todo o resto está aqui.
+A pessoa cola um prompt curto (modelo no fim deste arquivo) com a **org** no GitHub, os
+**produtos** e o endereço do **Hub**. Todo o resto está aqui.
+
+O prompt roda a partir de **qualquer pasta**: todo caminho aqui é absoluto. Fora da pasta em
+que a sessão abriu, o Claude Code pede permissão para ler e escrever — é esperado; explique
+isso à pessoa antes do primeiro pedido.
+
+**Pasta base** (onde os produtos vão morar): se o prompt não trouxer, **pergunte**, sugerindo
+`~/Dev/<org em minúsculas>`. Nunca escolha sozinho: cada pessoa organiza a máquina de um jeito.
 
 ---
 
@@ -47,11 +54,16 @@ Clone recusado (404 / permission denied) = a pessoa não tem acesso ao repositó
 
 ## 3. Levantamento — antes de criar ou mover qualquer coisa
 
-Procure clones que já existam dos repositórios dos produtos dentro da pasta base:
+Procure clones que já existam dos repositórios da org **em qualquer lugar da home**, pelo
+remote — não pelo nome da pasta, que cada pessoa escolhe:
 
 ```bash
-find <PASTA_BASE> -maxdepth 3 -name .git -prune 2>/dev/null
+find ~ -maxdepth 5 \( -path ~/Library -o -name node_modules -o -name .venv -o -path '*/.Trash' \) -prune -o -name .git -print 2>/dev/null \
+  | while read g; do r="${g%/.git}"; u=$(git -C "$r" remote get-url origin 2>/dev/null); case "$u" in *[:/]<ORG>/*) echo "$r  $u" ;; esac; done
 ```
+
+Achou clone de um produto fora da pasta base? Ele entra no levantamento e na migração do
+passo 5 do mesmo jeito — o trabalho em andamento dele é o que mais importa preservar.
 
 Para cada clone encontrado, meça e mostre numa tabela:
 
@@ -190,8 +202,8 @@ Instale e configure o prumo na minha máquina. Você é responsável pelo result
 3. Dados:
    - org no GitHub: <ORG>
    - produtos: <produto1>, <produto2>
-   - pasta base: <PASTA_BASE>
    - Hub de memória: <URL-DO-HUB>
+   - pasta base: pergunte-me onde eu quero os projetos
 4. Não apague nada sem me perguntar e nunca me peça segredo no chat.
 5. Termine com o relatório do passo 11.
 ```
