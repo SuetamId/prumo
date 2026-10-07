@@ -2,7 +2,8 @@
 # workspace.sh — monta a pasta de um produto: clona os repositórios dele e instala o
 # prumo em cada um. Instalado como `prumo-workspace`.
 #
-#   prumo-workspace <org> <produto> [--dir <pasta>] [--jira] [--sim]
+#   prumo-workspace <org> <produto> [--dir <pasta>] [--jira] [--hub <url>] [--sim]
+#   prumo-workspace --hub <url>          # só conecta os agentes ao Hub de memória
 #
 # Org e produto são ARGUMENTO: nada de empresa mora no kit. Repositório do produto é
 # o que tem o topic <produto> no GitHub ou o nome começando por "<produto>-". O topic
@@ -17,10 +18,11 @@ inf(){ printf '  \033[34m·\033[0m %s\n' "$1"; }
 avi(){ printf '  \033[33m!\033[0m %s\n' "$1"; }
 erro(){ printf '\033[31merro:\033[0m %s\n' "$1" >&2; exit 2; }
 
-ORG=""; PROD=""; DIR=""; JIRA=0; SIM=0
+ORG=""; PROD=""; DIR=""; JIRA=0; SIM=0; HUB=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) DIR="${2:-}"; shift ;;
+    --hub) HUB="${2:-}"; shift ;;
     --jira) JIRA=1 ;;
     --sim|-y) SIM=1 ;;
     -*) erro "opção desconhecida: $1" ;;
@@ -28,7 +30,61 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-[ -n "$ORG" ] && [ -n "$PROD" ] || erro "uso: prumo-workspace <org> <produto> [--dir <pasta>] [--jira] [--sim]"
+
+# ── Hub de memória: valida a chave e registra o servidor MCP nos clientes ────
+# A chave chega por terminal (sem eco) ou por PRUMO_HUB_KEY — nunca por argumento.
+configure_hub() {
+  local url="${HUB%/}" key me cfg="${XDG_CONFIG_HOME:-$HOME/.config}/prumo"
+  echo; echo "── Hub de memória ($url) ──"
+  key="${PRUMO_HUB_KEY:-}"
+  if [ -z "$key" ]; then
+    [ -t 0 ] || erro "sem terminal para pedir a chave — passe em PRUMO_HUB_KEY"
+    printf '  Cole a chave (gerada em %s/keys) e tecle Enter: ' "$url"; read -rs key; echo
+  fi
+  key="$(printf '%s' "$key" | tr -d '[:space:]')"
+  case "$key" in ph_*) ;; *) erro "isso não parece uma chave do Hub (começa com ph_)" ;; esac
+  # header pelo stdin (-H @-): a chave não aparece na lista de processos
+  me="$(printf 'Authorization: Bearer %s\n' "$key" | curl -sf -H @- "$url/api/me")" \
+    || erro "o Hub recusou a chave ou não respondeu em $url/api/me — confira o endereço e a chave"
+  ok "chave válida: $(printf '%s' "$me" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["email"], "·", ", ".join(t["slug"] for t in d["teams"]) or "nenhum time")')"
+
+  mkdir -p "$cfg" && chmod 700 "$cfg"
+  ( umask 077; printf '%s\n' "$key" > "$cfg/hub-key" )
+  ok "chave guardada em $cfg/hub-key (só você lê)"
+
+  if command -v claude >/dev/null; then
+    claude mcp remove prumo-hub --scope user >/dev/null 2>&1 || true
+    if claude mcp add-json prumo-hub --scope user \
+        "{\"type\":\"http\",\"url\":\"$url/mcp\",\"headersHelper\":\"$KIT/hub-headers.sh\"}" >/dev/null 2>&1; then
+      ok "Claude Code: prumo-hub configurado (a chave é lida do arquivo a cada conexão)"
+    else
+      avi "Claude Code: não consegui registrar — rode: claude mcp add-json prumo-hub --scope user '{\"type\":\"http\",\"url\":\"$url/mcp\",\"headersHelper\":\"$KIT/hub-headers.sh\"}'"
+    fi
+  else
+    inf "Claude Code não encontrado — pulei"
+  fi
+
+  if [ -d "$HOME/.cursor" ]; then
+    # O Cursor não tem headersHelper e não interpola variável em header remoto: a chave
+    # vai no próprio mcp.json, que é arquivo do usuário. Escrita pelo python, fora do argv.
+    PRUMO_HUB_KEY="$key" python3 - "$HOME/.cursor/mcp.json" "$url/mcp" <<'PYCUR' \
+      && ok "Cursor: prumo-hub em ~/.cursor/mcp.json" || avi "Cursor: ~/.cursor/mcp.json ilegível — mantido como está"
+import json, os, sys
+p, url = sys.argv[1:3]
+d = json.load(open(p)) if os.path.exists(p) and os.path.getsize(p) else {}
+d.setdefault("mcpServers", {})["prumo-hub"] = {"url": url, "headers": {"Authorization": "Bearer " + os.environ["PRUMO_HUB_KEY"]}}
+fd = os.open(p, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+with os.fdopen(fd, "w") as f:
+    json.dump(d, f, indent=2)
+PYCUR
+  else
+    inf "Cursor não encontrado — pulei"
+  fi
+  inf "reinicie o agente para ele carregar as ferramentas do Hub"
+}
+
+if [ -z "$ORG" ] && [ -n "$HUB" ]; then configure_hub; exit 0; fi
+[ -n "$ORG" ] && [ -n "$PROD" ] || erro "uso: prumo-workspace <org> <produto> [--dir <pasta>] [--jira] [--hub <url>] [--sim]   ·   prumo-workspace --hub <url>"
 command -v gh >/dev/null || erro "precisa do gh (https://cli.github.com)"
 gh auth status >/dev/null 2>&1 || erro "gh sem login — rode: gh auth login"
 
@@ -101,6 +157,8 @@ PY
     inf "Cursor não encontrado — pulei"
   fi
 fi
+
+[ -n "$HUB" ] && configure_hub
 
 echo
 echo "Workspace pronto: $WS"

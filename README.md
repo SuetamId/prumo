@@ -36,6 +36,22 @@ em cada um e — com `--jira` — conecta o Jira no Claude Code e no Cursor.
 > Quer ver antes? `bash ~/.prumo-kit/install.sh --dry-run .` mostra tudo que seria feito
 > sem escrever nada.
 
+### Memória do time (Hub)
+
+Se a sua empresa roda um Hub de memória, conecte os agentes a ele — uma vez por máquina:
+
+```bash
+prumo-workspace --hub https://endereco-do-hub
+```
+
+Ele pede a chave (gerada em **Chaves de API** no Hub, sem eco no terminal), confere com o
+servidor e configura o Claude Code e o Cursor. A chave fica em `~/.config/prumo/hub-key`,
+legível só por você; no Claude Code ela nem entra na configuração. Também funciona junto
+com o workspace: `prumo-workspace <org> <produto> --hub https://…`.
+
+Com o Hub conectado, a triagem busca o que o time já sabe antes de começar, e o `aprender`
+propõe ao time o que vale para além do repositório — um admin revisa antes de virar regra.
+
 ---
 
 ## Usar no dia a dia

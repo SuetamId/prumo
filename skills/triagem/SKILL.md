@@ -31,6 +31,11 @@ Use esse caminho também para `.prumo/contexto.md` — 🔴 **só leitura**. Tod
 não é a branch desta sessão, e outra sessão pode estar mexendo nele. Só se nem lá existir o projeto nunca
 foi adotado → `rules/adocao.md` **antes** de seguir.
 
+**Memória do time.** Com a ferramenta `memory_search` disponível (Hub de memória), busque
+antes de classificar — `remote` do repositório e o assunto do pedido. O que voltar é regra
+admitida por gente. Erro ou ferramenta ausente: siga sem, nunca invente. Detalhe em
+`../aprender/rules/hub.md`.
+
 **Projeto sem documentação?** Leia `.prumo/contexto.md` — contexto derivado do próprio
 código: stack, como se roda, onde o código mora, o que a esteira exige, e as **lacunas**.
 Ele é **gerado** e envelhece: confira o `HEAD` no cabeçalho contra o atual e regenere

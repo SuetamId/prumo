@@ -23,6 +23,12 @@ Se não couber nos campos abaixo, não é instinto — tem outro dono.
 Nenhum dos dois? Contrato vai para a doc do projeto, decisão vai para o registro durável,
 valor com validade vai para `perfil.tsv`.
 
+## Onde gravar
+
+Só deste repositório → arquivo local, abaixo. Vale para o produto inteiro ou para a empresa
+→ **propõe ao Hub de memória** (`memory_propose`), quando ele estiver configurado. Escolha e
+campos em `rules/hub.md`.
+
 ## A forma
 
 Um arquivo por instinto em `docs/ai-harness/memoria/<id>.md`. Template em
