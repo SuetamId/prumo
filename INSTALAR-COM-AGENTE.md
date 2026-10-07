@@ -104,14 +104,22 @@ git -C <antigo> status --porcelain --ignored
 
 | O quê | Para onde |
 |---|---|
-| `.env`, `.env.local` | mesma posição no clone novo (cópia de arquivo, sem ler) |
-| alteração local em arquivo de configuração (ex.: URL da API em `environment.ts`) | mostre só as linhas trocadas e reaplique no clone novo |
+| **configuração local** — tudo que o `--ignored` listar e se encaixe: `.env*` (menos `.env.example`), `*.local.*`, `.npmrc`, `docker-compose.override.yml`, `.flaskenv`, `config/local*`, `.claude/settings.local.json`, `.vscode/settings.json` | mesma posição no clone novo — `cp -n` (**nunca sobrescreve** o que já estiver lá), sem ler o conteúdo |
+| alteração local em arquivo **versionado** de configuração (ex.: URL da API em `environment.ts`) | mostre só as linhas trocadas e reaplique no clone novo |
 | `tasks/` e `docs/ai-harness/memoria/` — **de todos os worktrees** (memória costuma nascer dentro de um) | clone novo; memórias unidas, a mais recente vence |
 | stashes | `git stash show -p --include-untracked stash@{N}` → `tasks/stashes-antigos/N-<nome>.patch` |
 | commits só locais e trabalho descartado | `git format-patch` / `git diff HEAD` → `tasks/descartado-*/` |
 | memória do Claude Code daquele caminho | `~/.claude/projects/<caminho com / e . trocados por ->/memory/` → mesmo esquema no caminho novo |
 
-Confira que nada saiu vazio (`find … -size 0`) e só então:
+Confira que nada saiu vazio (`find … -size 0`) e que **nenhuma variável ficou para trás** —
+comparando só os **nomes**, nunca os valores:
+
+```bash
+diff <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' <antigo>/.env | sort) <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' <novo>/.env | sort)
+```
+
+(`<(…)` é bash/zsh; no fish, rode dentro de `bash -c '…'`.) Saída vazia = mesmas variáveis.
+Só então:
 
 ```bash
 osascript -e 'tell application "Finder" to delete POSIX file "<antigo>"'
@@ -119,6 +127,21 @@ osascript -e 'tell application "Finder" to delete POSIX file "<antigo>"'
 
 Arquivo de workspace do editor (`*.code-workspace`) que apontava para o antigo: atualize os
 caminhos.
+
+### Sem clone antigo — `.env` do zero
+
+Repositório que nunca esteve na máquina não tem `.env`. **Não invente valor.**
+
+1. Procure outro clone do mesmo repositório (o levantamento do passo 3 acha por remote) e
+   worktrees dele — o `.env` pode estar lá.
+2. Não achou e existe `.env.example`: copie para `.env` e liste à pessoa **os nomes** das
+   variáveis que ficaram com valor de exemplo — ela preenche (vem de quem já roda o projeto,
+   ou do painel do ambiente de dev).
+3. Nem exemplo existe: leia onde o código lê variáveis (`os.environ`, `process.env`,
+   `pydantic` `Settings`) e liste os nomes. Pendência com nome no relatório.
+
+Teste que falha por variável ausente **não é** teste quebrado — é pendência de configuração.
+Diga isso, não "corrija" o teste.
 
 ## 6. Dependências
 
@@ -160,6 +183,9 @@ onde o time integra e declare.
    ```bash
    prumo-workspace --hub <URL-DO-HUB>
    ```
+
+   Já existe chave válida na máquina (`~/.config/prumo/hub-key`)? O comando reaproveita e
+   não pede de novo — só reconfigura os clientes.
 
 4. Confira:
 

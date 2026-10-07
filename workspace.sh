@@ -37,6 +37,17 @@ configure_hub() {
   local url="${HUB%/}" key me cfg="${XDG_CONFIG_HOME:-$HOME/.config}/prumo"
   echo; echo "── Hub de memória ($url) ──"
   key="${PRUMO_HUB_KEY:-}"
+  # Já configurado antes? Reaproveita a chave se o Hub ainda a aceita — rodar de novo
+  # (outra máquina do time, kit atualizado, produto novo) não pede a chave outra vez.
+  if [ -z "$key" ] && [ -f "$cfg/hub-key" ]; then
+    key="$(tr -d '[:space:]' < "$cfg/hub-key")"
+    if printf 'Authorization: Bearer %s\n' "$key" | curl -sf -H @- "$url/api/me" >/dev/null; then
+      inf "chave existente em $cfg/hub-key ainda é aceita pelo Hub — reaproveitada"
+    else
+      avi "a chave guardada não é mais aceita (revogada?) — gere outra em $url/keys"
+      key=""
+    fi
+  fi
   if [ -z "$key" ]; then
     [ -t 0 ] || erro "sem terminal para pedir a chave — passe em PRUMO_HUB_KEY"
     printf '  Cole a chave (gerada em %s/keys) e tecle Enter: ' "$url"; read -rs key; echo
