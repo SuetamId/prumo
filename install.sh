@@ -76,11 +76,13 @@ medir(){ # chave · valor · origem  — só registra se o valor existir e não 
 
 # comandos, pela ordem de evidência mais forte
 if [ -f "$ALVO/package.json" ]; then
-  medir build "$(json_script build)"  "package.json:scripts.build"
-  medir teste "$(json_script test)"   "package.json:scripts.test"
-  medir lint  "$(json_script lint)"   "package.json:scripts.lint"
+  # o perfil guarda o COMANDO a rodar, não o corpo do script: "ng test" direto não acha o
+  # binário fora do npx (MEDIDO). O corpo vai na origem, para quem quiser saber o que roda.
+  v="$(json_script build)" && medir build "npm run build" "package.json:scripts.build ($v)"
+  v="$(json_script test)"  && medir teste "npm test"      "package.json:scripts.test ($v)"
+  v="$(json_script lint)"  && medir lint  "npm run lint"  "package.json:scripts.lint ($v)"
   for d in dev start serve; do
-    v="$(json_script "$d")" && { medir ui_dev "$v" "package.json:scripts.$d"; break; }
+    v="$(json_script "$d")" && { medir ui_dev "npm run $d" "package.json:scripts.$d ($v)"; break; }
   done
 fi
 [ -f "$ALVO/Makefile" ] && {
@@ -107,7 +109,7 @@ try: sc=json.load(open(sys.argv[1])).get("scripts") or {}
 except Exception: sys.exit(1)
 v=sc.get(sys.argv[2]); print(v) if v else sys.exit(1)
 PY2
-) && medir "$k.$b" "$v" "$b/package.json:scripts.$s"
+) && medir "$k.$b" "npm --prefix $b run $s" "$b/package.json:scripts.$s ($v)"
     done
     for s in dev start serve; do
       v=$(python3 - "$d/package.json" "$s" <<'PY3' 2>/dev/null
@@ -116,7 +118,7 @@ try: sc=json.load(open(sys.argv[1])).get("scripts") or {}
 except Exception: sys.exit(1)
 v=sc.get(sys.argv[2]); print(v) if v else sys.exit(1)
 PY3
-) && { medir "ui_dev.$b" "$v" "$b/package.json:scripts.$s"; break; }
+) && { medir "ui_dev.$b" "npm --prefix $b run $s" "$b/package.json:scripts.$s ($v)"; break; }
     done
   fi
   [ -f "$d/Makefile" ] && grep -qE '^test:' "$d/Makefile" && medir "teste.$b" "make -C $b test" "$b/Makefile"
