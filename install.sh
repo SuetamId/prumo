@@ -147,7 +147,10 @@ if git -C "$ALVO" rev-parse --git-dir >/dev/null 2>&1; then
   url="$(git -C "$ALVO" remote get-url origin 2>/dev/null)"
   slug="$(printf '%s' "$url" | sed -E 's#(\.git)?$##; s#^.*github\.com[:/]##')"
   if command -v gh >/dev/null && [ -n "$slug" ] && [ "$slug" != "$url" ]; then
-    pr_base="$(gh pr list -R "$slug" --state merged --limit 30 --json baseRefName --jq '.[].baseRefName' 2>/dev/null \
+    # Só PR que sai de branch de trabalho (feat/…, fix/…) conta: promoção entre ambientes
+    # (development → staging) é mais frequente e venceria a contagem — MEDIDO: 24 de 30.
+    pr_base="$(gh pr list -R "$slug" --state merged --limit 50 --json baseRefName,headRefName \
+      --jq '.[] | select(.headRefName | contains("/")) | .baseRefName' 2>/dev/null \
       | grep -v / | sort | uniq -c | sort -rn | awk 'NR==1 && $1>=3 {print $2" "$1}')"
     [ -n "$pr_base" ] && { base="${pr_base% *}"; ori="medido: ${pr_base#* } dos últimos PRs mergeados foram para $base"; }
   fi
