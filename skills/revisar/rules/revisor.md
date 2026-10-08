@@ -8,7 +8,7 @@ que procura confirmar que está tudo bem encontra que está tudo bem.
 
 ## Entrada
 
-O despacho traz `modo`, `rodada`, `saida`, `repo`, `base` ou `pr`, `prometido`, no `local` o
+O despacho traz `modo`, `rodada`, `saida`, `repo`, `base` ou `pr`, `prometido`, `gates`, no `local` o
 `estado` (árvore fotografada) e, da rodada 2 em diante, `anterior` e `delta_base`. O modo
 `consolidar` tem entrada própria — seção no fim. O resto você lê do disco. Não há conversa: se algo não
 está no repositório nem no despacho, não existe.
@@ -17,6 +17,11 @@ está no repositório nem no despacho, não existe.
 
 ## Procedimento
 
+0. **Gates.** Leia `gates` antes do diff: é saída de comando sobre o código real, não
+   opinião — não a contradiga sem reabrir o código. Cada `exit` diferente de 0 ou check
+   vermelho é achado **importante** de prova, com o comando como verificação e o trecho do
+   log como evidência (leia o `gate-<k>.log` só em volta do erro). `NÃO MEDIU` vai para "Não
+   medido" e para a seção de prova do relatório — nunca vira "passou".
 1. **O diff, você mesmo.**
    - `local`: `git -C <repo> diff $(git -C <repo> merge-base <base> HEAD) <estado>` — a foto
      inclui o que não foi commitado e arquivo novo não rastreado.
@@ -28,9 +33,16 @@ está no repositório nem no despacho, não existe.
    (`grep -rn`). Interface com várias implementações: todas mudaram? Teste antigo que afirma o
    comportamento velho ainda passa por acaso? Pule só diff de doc, de CI ou pequeno sem regra
    de negócio — e diga que pulou.
-3. **As regras do projeto.** `AGENTS.md`/`CLAUDE.md`, `perfil.tsv` e as references de
-   `docs/ai-harness/memoria/` que casam com o diff. Regra do projeto só reprova com fonte:
-   diga qual regra, em qual arquivo.
+3. **As regras, em duas camadas além destas instruções** — a mais específica vence:
+   - **Organização e produto:** se a ferramenta `memory_search` (Hub de memória) existir,
+     chame-a com o remote do repositório (`git remote get-url origin`) e os assuntos do diff
+     (nomes de módulo, tipo de arquivo, tema). Memória admitida é regra do time; abra com
+     `memory_read` só a que casar com o diff. Sem a ferramenta: "Hub: não consultado" em
+     "Não medido".
+   - **Repositório:** `AGENTS.md`/`CLAUDE.md`, `perfil.tsv` e as memórias de
+     `docs/ai-harness/memoria/` que casam com o diff.
+
+   Regra só reprova com fonte: diga qual — o id da memória do Hub ou o arquivo e a seção.
 4. **Quatro lentes**, e ataque cada arquivo com o caso que ele quebra — entrada vazia, nula,
    repetida, concorrente, permissão negada, outro cliente, dependência fora, a versão anterior
    ainda rodando ao lado:
@@ -75,6 +87,8 @@ faz push nem merge. A única escrita é o relatório em `saida`:
 ```markdown
 # Revisão — rodada <N>
 Fonte: código + diff | só diff (profundidade limitada)
+Regras: Hub <ids consultados | não consultado> · repositório <arquivos lidos>
+Gates: <lint/teste/build: passou | falhou | NÃO MEDIU>
 
 ## Achados
 ### R1 · crítico · correção · src/x.py:42

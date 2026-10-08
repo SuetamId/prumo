@@ -49,7 +49,25 @@ foto(){ GIT_INDEX_FILE="$RUN/.idx" git read-tree HEAD && GIT_INDEX_FILE="$RUN/.i
 foto > "$RUN/estado-<N>"
 ```
 
-## 2. Despachar o revisor
+## 2. Gates do projeto — antes do revisor
+
+Fato medido vale mais que leitura. Rode os comandos que o `perfil.tsv` já tem — `lint`,
+`teste`, `build`, nesta ordem, os que existirem — e grave a saída:
+
+```bash
+TOP=$(git rev-parse --show-toplevel); PERFIL="$TOP/perfil.tsv"   # worktree: o perfil é do checkout principal
+[ -f "$PERFIL" ] || PERFIL="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/perfil.tsv"
+for k in lint teste build; do
+  cmd=$(awk -F'\t' -v k="$k" '$1==k{print $2; exit}' "$PERFIL" 2>/dev/null)
+  [ -z "$cmd" ] && { echo "== $k: NÃO MEDIU (sem linha no perfil.tsv)"; continue; }
+  echo "== $k: $cmd"; (cd "$TOP" && sh -c "$cmd") > "$RUN/gate-$k.log" 2>&1; echo "exit=$?"
+done > "$RUN/gates.txt"
+```
+
+No modo `pr`, os gates são o CI do PR: `gh pr checks <pr> > "$RUN/gates.txt"`. No `chave`,
+um por PR. Gate que falhou não impede a revisão — vira achado.
+
+## 3. Despachar o revisor
 
 | Cliente | Como |
 |---|---|
@@ -64,13 +82,13 @@ O despacho leva **só** o que o revisor não descobre sozinho:
 modo=<local|pr>  rodada=<N>  saida=$RUN/rodada-<N>.md
 repo=<caminho absoluto>  base=<origin/branch_base do perfil.tsv>  [pr=<url>]
 [estado=<conteúdo de $RUN/estado-<N>>]   # só local
-prometido=$RUN/prometido.md
+prometido=$RUN/prometido.md  gates=$RUN/gates.txt
 [anterior=$RUN/rodada-<N-1>.md  delta_base=<conteúdo de $RUN/estado-<N-1>>]
 ```
 
 Nunca cole o diff, a conversa ou a sua opinião.
 
-## 3. Ler o veredito e corrigir (só `local`)
+## 4. Ler o veredito e corrigir (só `local`)
 
 O revisor devolve no máximo 15 linhas: veredito, contagem e os bloqueantes por id. O
 relatório inteiro está em `saida` — leia **o item** que vai corrigir, não o arquivo todo.
@@ -81,9 +99,9 @@ relatório inteiro está em `saida` — leia **o item** que vai corrigir, não o
   `$RUN/contestacoes.md`. O próximo revisor decide.
 - **Menor**: decisão sua, fora do laço.
 
-## 4. Revisor novo a cada rodada
+## 5. Revisor novo a cada rodada
 
-Corrigiu → nova `foto` e **outro** agente, com `anterior` e `delta_base`. Ele confere cada achado aberto
+Corrigiu → gates de novo, nova `foto` e **outro** agente, com `anterior` e `delta_base`. Ele confere cada achado aberto
 contra o código atual e revisa só o delta da correção — é onde correção introduz defeito. O
 revisor antigo já viu a versão errada e tende a confirmar a própria leitura.
 
