@@ -236,7 +236,7 @@ if [ "$SECO" = 1 ]; then
   echo; echo "── Fatos que seriam gravados ──"
   grep -v '^#' "$PERFIL" | while IFS=$'\t' read -r k v o; do printf '  %-26s %-44s %s\n' "$k" "$v" "$o"; done
   echo; echo "── O que seria escrito ──"
-  for f in "$IDX_SECO" "~/.claude/skills/ (global)" .agents/skills/ .cursor/rules/ .prumo/contexto.md docs/ai-harness/memoria/ perfil.tsv; do
+  for f in "$IDX_SECO" "~/.claude/skills/ e ~/.claude/agents/ (global)" .agents/skills/ .cursor/rules/ .prumo/contexto.md docs/ai-harness/memoria/ perfil.tsv; do
     [ -n "$f" ] && printf '  %s\n' "$f"
   done
   echo; echo "Dry-run: nada foi escrito."
@@ -287,6 +287,21 @@ while IFS=$'\t' read -r kind nome alvo sempre _; do
   n_sk=$((n_sk+1))
 done < "$KIT/manifest.tsv"
 ok "$n_sk skills → ~/.claude/skills/ (global, symlink ao kit) · .agents/skills/ + .cursor/rules/ (Cursor)"
+
+# Agentes do Claude Code (revisor de contexto limpo): global, symlink, mesma guarda.
+# O agente lê as instruções da skill global `revisar`: sem ela ser nossa, não instala.
+mkdir -p "$HOME/.claude/agents"
+[ "$(readlink "$GLOBAL/revisar")" = "$KIT/skills/revisar" ] && for a in "$KIT"/agents/*.md; do
+  g="$HOME/.claude/agents/${a##*/}"
+  if [ -e "$g" ] && ! { [ -L "$g" ] && [ "$(readlink "$g")" = "$a" ]; }; then
+    avi "$g já existe e não é do prumo — mantido"
+  else
+    ln -sfn "$a" "$g"
+  fi
+done
+[ "$(readlink "$HOME/.claude/agents/prumo-revisor.md")" = "$KIT/agents/prumo-revisor.md" ] \
+  && ok "agentes → ~/.claude/agents/ (global, symlink ao kit)" \
+  || avi "agente prumo-revisor NÃO instalado — a skill revisar cai no agente de uso geral"
 
 mkdir -p "$ALVO/tasks" "$ALVO/docs/ai-harness/memoria"
 ok "memória → docs/ai-harness/memoria/"

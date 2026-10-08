@@ -54,6 +54,7 @@ pedido, bug ou chave de issue
 | `execucao` | existe plano aprovado | código, uma onda por vez, com prova por onda |
 | `prova` | antes de dizer "pronto" | evidência — teste, tela real e revisão em outro contexto |
 | `ui-plano` | a entrega muda o que se vê | superfícies, estados, componentes, referência visual |
+| `revisar` | antes do PR, ou num PR aberto | revisão por um agente novo, de contexto limpo, até três rodadas |
 | `aprender` | a sessão ensinou algo | episódio de memória durável |
 | `leveza` | sempre | a menor solução que funciona, e a dívida marcada |
 
@@ -238,6 +239,7 @@ reinstala em cada um.
 | Caminho | Vai para o git? | O que é |
 |---|---|---|
 | `~/.claude/skills/<peça>` | — | skills do Claude Code, globais (link para o kit) |
+| `~/.claude/agents/prumo-revisor.md` | — | o revisor de contexto limpo do Claude Code (link para o kit) |
 | `.agents/skills/` · `.cursor/rules/` | sim | as mesmas skills, para o Cursor |
 | bloco em `AGENTS.md` ou `CLAUDE.md` | sim | índice curto, entre marcadores |
 | `docs/ai-harness/memoria/` | sim | o que o harness aprendeu neste projeto |
@@ -256,7 +258,7 @@ ninguém.
 No projeto:
 
 ```bash
-rm -rf .prumo tasks perfil.tsv .agents/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza} .cursor/rules/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}.mdc
+rm -rf .prumo tasks perfil.tsv .agents/skills/{triagem,plano,execucao,prova,revisar,ui-plano,aprender,leveza,demanda} .cursor/rules/{triagem,plano,execucao,prova,revisar,ui-plano,aprender,leveza,demanda}.mdc
 ```
 
 ```bash
@@ -266,7 +268,7 @@ python3 -c "import re,os; f=[x for x in ('AGENTS.md','CLAUDE.md') if os.path.isf
 Na máquina:
 
 ```bash
-rm -f ~/.claude/skills/{triagem,plano,execucao,prova,ui-plano,aprender,leveza}
+rm -f ~/.claude/skills/{triagem,plano,execucao,prova,revisar,ui-plano,aprender,leveza,demanda} ~/.claude/agents/prumo-revisor.md
 ```
 
 `docs/ai-harness/memoria/` fica de propósito — é conhecimento do seu projeto.
