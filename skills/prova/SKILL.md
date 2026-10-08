@@ -48,8 +48,8 @@ esperou. Sete padrões e três perguntas, sobre o diff.
 
 ## Revisão e PR
 
-Antes de abrir PR, em toda classe que não seja trivial: **revisão em outro contexto** —
-`rules/revisao.md`. Quem escreveu não aprova. Depois, a entrega por PR segue
+Antes de abrir PR, em toda classe que não seja trivial: **revisão por um agente novo** —
+`../revisar/SKILL.md`. Quem escreveu não aprova. Depois, a entrega por PR segue
 `rules/entrega-pr.md`: o que pode sem pedir, corpo que não executa, CI classificado.
 
 ## Regra de honestidade

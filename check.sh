@@ -65,7 +65,7 @@ if not nomes:
 else:
     proibidos=re.compile(r'\b(' + '|'.join(map(re.escape, nomes)) + r')\b', re.I)
     n=erros
-    for p in sorted(glob.glob('skills/**/*',recursive=True)):
+    for p in sorted(glob.glob('skills/**/*',recursive=True)+glob.glob('agents/*')):
         if os.path.isfile(p):
             for i,l in enumerate(open(p,errors='ignore'),1):
                 if proibidos.search(l): ko(f"{p}:{i}: nome próprio no artefato")

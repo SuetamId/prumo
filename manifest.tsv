@@ -20,12 +20,13 @@ skill	prova	ambos	nao	evidência antes de afirmação; em UI a prova é a tela
 skill	ui-plano	ambos	nao	escada de referência visual e plano de UI
 skill	aprender	ambos	nao	episódio durável e indexado
 skill	leveza	ambos	sim	a menor solução que funciona; sempre ativa
+skill	revisar	ambos	nao	revisão por agente novo, de contexto limpo: local, PR ou chave
 skill	demanda	ambos	nao	ideia de produto vira história pronta para engenharia, registrada no rastreador
 reference	triagem/rules/adocao	ambos	nao	lê o projeto existente e preenche só a lacuna
 reference	ui-plano/rules/mapear-padroes	ambos	nao	degrau 3: extrai o vocabulário visual do próprio produto
 reference	ui-plano/rules/qualidade-ui	ambos	nao	piso de acessibilidade, estados, hierarquia, ritmo
 reference	prova/rules/prova-de-tela	ambos	nao	roteiro de prova na interface real
-reference	prova/rules/revisao	ambos	nao	revisão em outro contexto; quem escreveu não aprova
+reference	revisar/rules/revisor	ambos	nao	instruções do revisor; fonte única para agente e chat novo
 reference	prova/rules/entrega-pr	ambos	nao	PR: faixas de permissão, corpo que não executa, CI classificado
 reference	plano/rules/multi-repo	ambos	nao	um plano, contrato antes de código, ordem de merge entre repositórios
 reference	triagem/rules/hipoteses	ambos	nao	três hipóteses falsificáveis, derrubadas por dado
