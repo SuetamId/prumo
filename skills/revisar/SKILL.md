@@ -126,5 +126,7 @@ de revisão.
 ## Fechar
 
 Na conversa, curto: modo, rodadas, veredito final, bloqueantes abertos, pendências e o caminho
-de `$RUN`. Modo `pr`/`chave` não comenta no PR, não aprova e não faz merge sem pedido
+de `$RUN`. Depois, o checkpoint de retrabalho (`../aprender/rules/retrabalho.md`) — um só:
+chamada pela `prova`, passe os achados para o checkpoint dela; chamada sozinha, rode-o aqui.
+No `pr`/`chave`, o sinal é o achado que se repete entre rodadas ou entre PRs. Modo `pr`/`chave` não comenta no PR, não aprova e não faz merge sem pedido
 explícito — publicar é ação da pessoa.
