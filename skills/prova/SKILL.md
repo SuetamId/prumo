@@ -72,3 +72,5 @@ aparecer, não desaparecer.
 - [ ] Atalho deliberado marcado com `leveza:` e teto nomeado
 - [ ] O que ficou fora está dito, não omitido
 - [ ] Revisado em outro contexto, sem crítico aberto — ou NÃO MEDIU, dito
+- [ ] Retrabalho da sessão listado e candidatas sugeridas — ou `Retrabalho: nenhum`
+      (`../aprender/rules/retrabalho.md`)

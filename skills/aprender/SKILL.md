@@ -23,6 +23,12 @@ Se não couber nos campos abaixo, não é instinto — tem outro dono.
 Nenhum dos dois? Contrato vai para a doc do projeto, decisão vai para o registro durável,
 valor com validade vai para `perfil.tsv`.
 
+## Quem pergunta
+
+Não espere pedirem. `prova` e `revisar` rodam o checkpoint de retrabalho ao fechar
+(`rules/retrabalho.md`): listam onde a sessão errou e voltou e **sugerem** as candidatas — a
+pessoa aprova com um sim.
+
 ## Onde gravar
 
 Só deste repositório → arquivo local, abaixo. Vale para o produto inteiro ou para a empresa
